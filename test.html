@@ -21,8 +21,7 @@ setInterval(function () {
     .then(response => response.json())
     .then(json => {
       data = json;
-	  let energy = (data.speed**2/2) + (g*state["H, m"]);
-	  document.getElementById("energy").innerText = energy;
+	  calc_energy(data, state);
     })
 }, 50);
 
@@ -31,17 +30,23 @@ setInterval(function () {
     .then(response => response.json())
     .then(json => {
 	 state = json;
-	 let energy = (data.speed**2/2) + (g*state["H, m"]);
-	 document.getElementById("energy").innerText = energy;
+	 calc_energy(data, state);
     })
 }, 50);
 
-// START <<<<<<<<<<<<
-function ready() {
+function calc_energy(data, state) {
+  let energy_speed = (data.speed**2/2);
+  let energy_height = (g*state["H, m"]);
+  let energy = energy_speed + energy_height;
+  document.getElementById("energy_speed").innerText = energy_speed;
+  document.getElementById("energy_height").innerText = energy_height;
+  document.getElementById("energy").innerText = energy;
 }
 </script>
 <div id="main">
-  Energy = <span id="energy"></span>
+  Specific Energy from Speed = <span id="energy_speed"></span> J/kg <br />
+  Specific Energy from Altitude = <span id="energy_height"></span> J/kg <br />
+  Specific Energy = <span id="energy"></span> J/kg
 </div>
 </body>
 </html>
