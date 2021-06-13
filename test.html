@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Display</title>
+<style>
+</style>
+
+</head>
+<body>
+
+<script>
+// globals
+let data = [];
+let state = [];
+var counter = 0;
+
+let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
+
+setInterval(function () {
+  fetch("http://localhost:8111/indicators")
+    .then(response => response.json())
+    .then(json => {
+      data = json;
+	  let energy = (data.speed**2/2) + (g*state["H, m"]);
+	  document.getElementById("energy").innerText = energy;
+    })
+}, 50);
+
+setInterval(function () {
+  fetch("http://localhost:8111/state")
+    .then(response => response.json())
+    .then(json => {
+	 state = json;
+	 let energy = (data.speed**2/2) + (g*state["H, m"]);
+	 document.getElementById("energy").innerText = energy;
+    })
+}, 50);
+
+// START <<<<<<<<<<<<
+function ready() {
+}
+</script>
+<div id="main">
+  Energy = <span id="energy"></span>
+</div>
+</body>
+</html>
