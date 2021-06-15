@@ -1,0 +1,158 @@
+/*
+	Gaijin CSS
+*/
+
+body {
+  background-color: #333;
+  color: #eee;
+  font-family: Tahoma, Verdana, Arial;
+}
+
+#mission-objectives {
+  background-color: rgba(20, 30, 25, 0.5);
+  display:table;
+  position: absolute;
+  left: 5px; top: 1000px;
+  width: 640px;
+}
+
+#energy-data {
+  background-color: rgba(20, 30, 25, 0.5);
+  display:table;
+  position: absolute;
+  left: 5px; top: 670px;
+  width: 640px;
+}
+
+div.objective {
+/*      border: 1px solid #666;
+  background-color: #444;
+  margin: 8px;
+  padding: 4px;        
+*/
+}
+/*
+div#holder.in_progress {
+  background-color: #663;
+}
+*/
+div#holder.completed {
+  text-decoration: overlie;
+  color:#462;
+}
+div#holder.failed {
+  color: #522;
+  text-decoration: line-through;
+}
+
+div.caption {
+  display: table-row;
+  height:20px;
+  background-color: #555;
+  margin: 0px;
+}
+
+#draghandle { cursor: move; width:100%; height:20px;}
+
+#game-chat-root, #hud-evt-msg-root {
+  display: table;
+  background-color: rgba(20, 30, 25, 0.5);
+  /*padding: 5px;*/
+  position: absolute;
+  left: 650px;
+  width:300px; height: 200px;     
+}
+
+#hud-dmg-msg-root {
+  display: table;
+  background-color: rgba(20, 30, 25, 0.5);
+  /*padding: 5px;*/
+  position: absolute;
+  left: 650px;
+  width:300px; height: 200px;
+}
+
+#textlines {
+  /*display: table-row;*/
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+}
+
+#game-chat-root   { top: 5px; }
+#hud-evt-msg-root { top: 220px; }
+#hud-dmg-msg-root { top: 435px; }
+
+.chat-line {
+}
+
+.msg-type-system { color: #ff8; }
+.msg-type-enemy  { color: #fa8; }
+
+#map-root {
+  display:table;
+  position: absolute;
+  left: 5px; top: 5px;
+  border: 1px solid #444;
+}
+
+#map-canvas {
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+#indicators-root {
+  background-color: rgba(20, 30, 25, 0.5);
+  display:table;
+  position: absolute;
+  left: 650px; top: 670px;
+  width: 300px;
+}
+
+#indicators {
+  overflow:auto;
+  height:100%;
+}
+
+#indicators0, #indicators1 {
+  list-style-type: none;
+  margin: 0;
+  padding: 0 0 1.2em;
+  float: left;
+  width: 50%;
+  overflow: hidden;
+}
+#indicators0 li, #indicators1 li {
+  margin: 0px;
+}
+
+#state-root {
+  background-color: rgba(20, 30, 25, 0.5);
+  display:table;
+  position: absolute;
+  left: 650px; top: 670px;
+  width: 300px;
+}
+
+#state {
+  overflow:auto;
+  height:100%;
+}
+
+#state0, #state1 {
+  list-style-type: none;
+  margin: 0;
+  padding: 0 0 1.2em;
+  float: left;
+  width: 50%;
+  overflow: hidden;
+}
+#state0 li, #state1 li {
+  margin: 0px;
+}    
+
+@font-face {
+  font-family: 'Icons'; 
+  src: url('icons.ttf'); 
+}

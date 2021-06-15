@@ -1,52 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8" />
     <title>Display</title>
-<style>
-</style>
-
+	<link rel="stylesheet" href="displayStyles.css">
+  <link href="jquery-ui-1.10.3.custom.css" rel="stylesheet">
 </head>
 <body>
 
-<script>
-// globals
-let data = [];
-let state = [];
-var counter = 0;
+<script
+			  src="https://code.jquery.com/jquery-1.12.4.min.js"
+			  integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+			  crossorigin="anonymous"></script>
+<script
+			  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+			  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+			  crossorigin="anonymous"></script>
+<script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
+<script src="cookies.min.js"></script>
+<script src="sylvester-gaijin-edited.src.js"></script>
+<script src="script.js"></script>
+<div id="log_output"></div>
 
-let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
+  <div id="map-root">
+    <div class="caption"><div id="draghandle"></div></div>
+    <canvas id="map-canvas" width="640" height="640">Please use a browser with canvas support</canvas>
+  </div>
 
-setInterval(function () {
-  fetch("http://localhost:8111/indicators")
-    .then(response => response.json())
-    .then(json => {
-      data = json;
-	  calc_energy(data, state);
-    })
-}, 50);
+  <div id="energy-data">
+    <div class="caption"><div id="draghandle"></div></div>
+    <div id="textlines">
+        Specific Energy from Speed = <span id="energy_speed"></span> J/kg <br />
+        Specific Energy from Altitude = <span id="energy_height"></span> J/kg <br />
+        Specific Energy = <span id="energy"></span> J/kg
+    </div>
+  </div>
 
-setInterval(function () {
-  fetch("http://localhost:8111/state")
-    .then(response => response.json())
-    .then(json => {
-	 state = json;
-	 calc_energy(data, state);
-    })
-}, 50);
+  <div id="game-chat-root">
+    <div class="caption"><div id="draghandle"></div></div>
+    <div id="textlines"></div>
+  </div>
 
-function calc_energy(data, state) {
-  let energy_speed = (data.speed**2/2);
-  let energy_height = (g*state["H, m"]);
-  let energy = energy_speed + energy_height;
-  document.getElementById("energy_speed").innerText = energy_speed;
-  document.getElementById("energy_height").innerText = energy_height;
-  document.getElementById("energy").innerText = energy;
-}
-</script>
-<div id="main">
-  Specific Energy from Speed = <span id="energy_speed"></span> J/kg <br />
-  Specific Energy from Altitude = <span id="energy_height"></span> J/kg <br />
-  Specific Energy = <span id="energy"></span> J/kg
-</div>
+  <div id="hud-evt-msg-root">
+    <div class="caption"><div id="draghandle"></div></div>
+    <div id="textlines"></div>
+  </div>
+
+  <div id="hud-dmg-msg-root">
+    <div class="caption"><div id="draghandle"></div></div>
+    <div id="textlines"></div>
+  </div>
+
+  <div id="indicators-root">
+    <div class="caption"><div id="draghandle"></div></div>
+    <div id="indicators">
+      <ul id="indicators0" class="connectedIndicators"></ul>
+      <ul id="indicators1" class="connectedIndicators"></ul>
+    </div>
+  </div>
+  
+  <div id="state-root">
+    <div class="caption"><div id="draghandle"></div></div>
+    <div id="state">
+      <ul id="state0" class="connectedState"></ul>
+      <ul id="state1" class="connectedState"></ul>
+    </div>
+  </div>
+  
+  <!-- Placeholder to not break stuff
+	I guess we could update this but Alex doesn't need it -->
+  <div id="mission-objectives">
+    <div class="caption"><div id="draghandle"></div></div>
+  </div>
 </body>
 </html>
