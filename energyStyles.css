@@ -1,0 +1,13 @@
+body {
+  background-color: #333;
+  color: #eee;
+  font-family: Tahoma, Verdana, Arial;
+}
+
+#energy-data {
+  background-color: rgba(20, 30, 25, 0.5);
+  display:table;
+  position: absolute;
+  left: 5px; top: 0px;
+  width: 100%;
+}
