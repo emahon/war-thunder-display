@@ -224,9 +224,9 @@ function calc_energy(data, state) {
   let energy_speed = (data.speed**2/2);
   let energy_height = (g*state["H, m"]);
   let energy = energy_speed + energy_height;
-  document.getElementById("energy_speed").innerText = energy_speed;
-  document.getElementById("energy_height").innerText = energy_height;
-  document.getElementById("energy").innerText = energy;
+  document.getElementById("energy_speed").innerText = energy_speed.toFixed(0);
+  document.getElementById("energy_height").innerText = energy_height.toFixed(0);
+  document.getElementById("energy").innerText = energy.toFixed(0);
 }
 
 // code ported from gaijin
