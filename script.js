@@ -1,7 +1,6 @@
 // globals
 let data = [];
 let state = [];
-let counter = 0;
 
 let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
 
@@ -33,13 +32,13 @@ lastChatRecId = 0;
 lastEvtMsgId = 0;
 lastDmgMsgId = 0;
 
-let getMapObj = true;
+let mapObjNumRequests = 0;
 // get objects
 setInterval(function() {
-  if (getMapObj) {
+  if (mapObjNumRequests < 100) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    getMapObj = false;
+    mapObjNumRequests++;
     fetch("http://localhost:8111/map_obj.json", { signal })
       .then(response => {
         return response.json();
@@ -49,29 +48,29 @@ setInterval(function() {
         map_objects = json;
         let dt = update_timers();
         redraw_map(dt);
-        getMapObj = true;
+        mapObjNumRequests--;
       })
       .catch(error => {
         // if this is a CORS error, then the user needs to get into
         // a match
         // show that!
         abortController.abort();
-        getMapObj = true;
+        mapObjNumRequests--;
         if (error.name === "SyntaxError") {
           return;
         }
         console.log(error);
       });
   }	
-}, 50);
+}, 100);
 
-let getMapInfo = true;
+let mapInfoNumRequests = 0;
 // get map info
 setInterval(function() {
-  if (getMapInfo) {
+  if (mapInfoNumRequests < 100) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    getMapInfo = false;
+    mapInfoNumRequests++;
     fetch("http://localhost:8111/map_info.json", {signal})
       .then(response => response.json())
       .then(json => {			
@@ -87,28 +86,28 @@ setInterval(function() {
           redraw_map(0.0);
         }
         
-        getMapInfo = true;
+        mapInfoNumRequests--;
       })
       .catch(error => {
         abortController.abort();
         console.log(error);
-        getMapInfo = true;
+        mapInfoNumRequests--;
       });
   }
-}, 50);
+}, 100);
 
-let getChat = true;
+let chatNumRequests = 0;
 // get chat
 setInterval(function() {
-  if (getChat) {
+  if (chatNumRequests < 100) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    getChat = false;
+    chatNumRequests++;
     fetch('http://localhost:8111/gamechat?lastId='+lastChatRecId, {signal})
       .then(response => response.json())
       .then(json => {
         if (!json || !json.length) {
-          getChat = true;
+          chatNumRequests--;
           return;
         }
         
@@ -121,28 +120,28 @@ setInterval(function() {
         root.get(0).scrollTop = root.get(0).scrollHeight;
 
         lastChatRecId = json[json.length-1].id;
-        getChat = true;
+        chatNumRequests--;
       })
       .catch(error => {
         abortController.abort();
         console.log(error);
-        getChat = true;
+        chatNumRequests--;
       });
   }
-}, 50);
+}, 100);
 
-let getHudMsg = true;
+let hudMsgNumRequests = 0;
 // get hud message
 setInterval(function() {
-  if (getHudMsg) {
+  if (hudMsgNumRequests < 100) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    getHudMsg = false;
+    hudMsgNumRequests++;
     fetch('http://localhost:8111/hudmsg?lastEvt='+lastEvtMsgId+'&lastDmg='+lastDmgMsgId, {signal})
       .then(response => response.json())
       .then(json => {
         if (!json) {
-          getHudMsg = true;
+          hudMsgNumRequests--;
           return;
         }
         
@@ -165,23 +164,23 @@ setInterval(function() {
           lastDmgMsgId = msgDmg[msgDmg.length-1].id;
         }
         
-        getHudMsg = true;
+        hudMsgNumRequests--;
       })
       .catch(error => {
         abortController.abort();
         console.log(error);
-        getHudMsg = true;
+        hudMsgNumRequests--;
       });
   }
-}, 50);
+}, 100);
 
-let getIndicators = true;
+let indicatorsNumRequests = 0;
 // get indicators
 setInterval(function () {
-  if (getIndicators) {
+  if (indicatorsNumRequests < 100) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    getIndicators = false;
+    indicatorsNumRequests++;
     fetch("http://localhost:8111/indicators", {signal})
       .then(response => response.json())
       .then(json => {
@@ -197,7 +196,7 @@ setInterval(function () {
           }
         }
         if (!isValid) {
-          getIndicators = true;
+          indicatorsNumRequests--;
           return;
         }
         
@@ -219,23 +218,23 @@ setInterval(function () {
         // my code
         
         calc_energy(data, state);
-        getIndicators = true;
+        indicatorsNumRequests--;
       })
       .catch(error => {
         abortController.abort();
         console.log(error);
-        getIndicators = true;
+        indicatorsNumRequests--;
       });
   }
-}, 50);
+}, 100);
 
-let getState = true;
+let stateNumRequests = 0;
 // get state
 setInterval(function () {
-  if (getState) {
+  if (stateNumRequests < 100) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    getState = false;
+    stateNumRequests++;
     fetch("http://localhost:8111/state", {signal})
       .then(response => response.json())
       .then(json => {
@@ -247,7 +246,7 @@ setInterval(function () {
             if (isValid) { roots[i].show() } else { roots[i].hide() }
           }
           if (!isValid) {
-            getState = true;
+            stateNumRequests--;
             return;
           }
             
@@ -272,15 +271,15 @@ setInterval(function () {
        
        // my code
        calc_energy(data, state);
-       getState = true;
+       stateNumRequests--;
       })
       .catch(error => {
         abortController.abort();
         console.log(error);
-        getState = true;
+        stateNumRequests--;
       });
   }
-}, 50);
+}, 100);
 
 function calc_energy(data, state) {
   let energy_speed = (data.speed**2/2);
