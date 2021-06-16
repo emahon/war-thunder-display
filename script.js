@@ -33,194 +33,253 @@ lastChatRecId = 0;
 lastEvtMsgId = 0;
 lastDmgMsgId = 0;
 
+let getMapObj = true;
 // get objects
 setInterval(function() {
-  const abortController = new AbortController();
-  const signal = abortController.signal;
-	fetch("http://localhost:8111/map_obj.json", { signal })
-	  .then(response => {
-		  return response.json();
-	  })
-	  .then(json => {
-		  // gaijin code - ported from update_object_positions
-		  map_objects = json
-		  let dt = update_timers()
-		  redraw_map(dt) 
-	  })
-	  .catch(error => {
-		  // if this is a CORS error, then the user needs to get into
-		  // a match
-		  // show that!
-      if (error.name === "SyntaxError") {
-        return;
-      }
-		  console.log(error);
-      abortController.abort();
-	  });
+  if (getMapObj) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    getMapObj = false;
+    fetch("http://localhost:8111/map_obj.json", { signal })
+      .then(response => {
+        return response.json();
+      })
+      .then(json => {
+        // gaijin code - ported from update_object_positions
+        map_objects = json;
+        let dt = update_timers();
+        redraw_map(dt);
+        getMapObj = true;
+      })
+      .catch(error => {
+        // if this is a CORS error, then the user needs to get into
+        // a match
+        // show that!
+        abortController.abort();
+        getMapObj = true;
+        if (error.name === "SyntaxError") {
+          return;
+        }
+        console.log(error);
+      });
+  }	
 }, 50);
 
+let getMapInfo = true;
 // get map info
 setInterval(function() {
-	fetch("http://localhost:8111/map_info.json")
-	  .then(response => response.json())
-		.then(json => {			
-      let prevMapGen = (map_info && ('map_generation' in map_info)) ? map_info['map_generation'] : -1;
-      let newMapGen = (json && ('map_generation' in json)) ? json['map_generation'] : -1;
-    
-			map_info = json;
-			
-			if (prevMapGen != newMapGen) {
-				map_image.src = 'http://localhost:8111/map.img?gen='+newMapGen
-				map_scale = 1.0
-				map_pan = [0.0, 0.0]
-				redraw_map(0.0)
-			}
-		})
-		.catch(error => {
-			console.log(error);
-		});
+  if (getMapInfo) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    getMapInfo = false;
+    fetch("http://localhost:8111/map_info.json", {signal})
+      .then(response => response.json())
+      .then(json => {			
+        let prevMapGen = (map_info && ('map_generation' in map_info)) ? map_info['map_generation'] : -1;
+        let newMapGen = (json && ('map_generation' in json)) ? json['map_generation'] : -1;
+      
+        map_info = json;
+        
+        if (prevMapGen != newMapGen) {
+          map_image.src = 'http://localhost:8111/map.img?gen='+newMapGen;
+          map_scale = 1.0;
+          map_pan = [0.0, 0.0];
+          redraw_map(0.0);
+        }
+        
+        getMapInfo = true;
+      })
+      .catch(error => {
+        abortController.abort();
+        console.log(error);
+        getMapInfo = true;
+      });
+  }
 }, 50);
 
+let getChat = true;
 // get chat
 setInterval(function() {
-  fetch('http://localhost:8111/gamechat?lastId='+lastChatRecId)
-    .then(response => response.json())
-    .then(json => {
-      if (!json || !json.length) {
-        return;
-      }
-      
-      let root = $('#game-chat-root #textlines');
-      for (let i=0; i<json.length; ++i) {
-        add_to_chat(root, json[i]);
-      }
-      
-      // change this - only want to scroll to bottom if new message
-      root.get(0).scrollTop = root.get(0).scrollHeight;
+  if (getChat) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    getChat = false;
+    fetch('http://localhost:8111/gamechat?lastId='+lastChatRecId, {signal})
+      .then(response => response.json())
+      .then(json => {
+        if (!json || !json.length) {
+          getChat = true;
+          return;
+        }
+        
+        let root = $('#game-chat-root #textlines');
+        for (let i=0; i<json.length; ++i) {
+          add_to_chat(root, json[i]);
+        }
+        
+        // change this - only want to scroll to bottom if new message
+        root.get(0).scrollTop = root.get(0).scrollHeight;
 
-      lastChatRecId = json[json.length-1].id;
-    })
-    .catch(error => {
-      console.log(error);
-    });
+        lastChatRecId = json[json.length-1].id;
+        getChat = true;
+      })
+      .catch(error => {
+        abortController.abort();
+        console.log(error);
+        getChat = true;
+      });
+  }
 }, 50);
 
+let getHudMsg = true;
 // get hud message
 setInterval(function() {
-  fetch('http://localhost:8111/hudmsg?lastEvt='+lastEvtMsgId+'&lastDmg='+lastDmgMsgId)
-    .then(response => response.json())
-    .then(json => {
-      if (!json) {
-        return;
-      }
-      
-      let msgEvt = json["events"];
-      let msgDmg = json["damage"];
-      let types = [[msgEvt, '#hud-evt-msg-root #textlines'], [msgDmg, '#hud-dmg-msg-root #textlines']];
-      for (let tp=0; tp<types.length; ++tp) {
-        let msg = types[tp][0];
-        let root = $(types[tp][1]);
-        for (let i=0; i<msg.length; ++i) {
-          add_to_chat(root, msg[i]);
+  if (getHudMsg) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    getHudMsg = false;
+    fetch('http://localhost:8111/hudmsg?lastEvt='+lastEvtMsgId+'&lastDmg='+lastDmgMsgId, {signal})
+      .then(response => response.json())
+      .then(json => {
+        if (!json) {
+          getHudMsg = true;
+          return;
         }
-        root.get(0).scrollTop = root.get(0).scrollHeight;
-      }
+        
+        let msgEvt = json["events"];
+        let msgDmg = json["damage"];
+        let types = [[msgEvt, '#hud-evt-msg-root #textlines'], [msgDmg, '#hud-dmg-msg-root #textlines']];
+        for (let tp=0; tp<types.length; ++tp) {
+          let msg = types[tp][0];
+          let root = $(types[tp][1]);
+          for (let i=0; i<msg.length; ++i) {
+            add_to_chat(root, msg[i]);
+          }
+          root.get(0).scrollTop = root.get(0).scrollHeight;
+        }
 
-      if (msgEvt.length) {
-        lastEvtMsgId = msgEvt[msgEvt.length-1].id;
-      }
-      if (msgDmg.length) {
-        lastDmgMsgId = msgDmg[msgDmg.length-1].id;
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    });
+        if (msgEvt.length) {
+          lastEvtMsgId = msgEvt[msgEvt.length-1].id;
+        }
+        if (msgDmg.length) {
+          lastDmgMsgId = msgDmg[msgDmg.length-1].id;
+        }
+        
+        getHudMsg = true;
+      })
+      .catch(error => {
+        abortController.abort();
+        console.log(error);
+        getHudMsg = true;
+      });
+  }
 }, 50);
 
+let getIndicators = true;
 // get indicators
 setInterval(function () {
-  fetch("http://localhost:8111/indicators")
-    .then(response => response.json())
-    .then(json => {
-      data = json;
-      // gaijin code - ported from update_indicators
-      let isValid = data && data['valid']
-      let roots = [$('#indicators0'), $('li')]
-      for (let i=0; i<2; ++i) {
-        if (isValid) { 
-          roots[i].show() 
-        } else { 
-          roots[i].hide() 
-        }
-      }
-      if (!isValid)
-      return
-      
-      let lists = [$('#indicators0 li'), $('#indicators1 li')]
-      for (let iList=0; iList<2; ++iList) {
-        let list = lists[iList]
-        for (let iItem=0, nItems=list.length; iItem < nItems; ++iItem) {
-          let elem = $(list.get(iItem))
-          let id = elem.get(0).id.slice(4)
-          if (id in data) {
-            elem.show()
-            elem.text(id+'='+data[id])
-          } else {
-            elem.hide()
+  if (getIndicators) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    getIndicators = false;
+    fetch("http://localhost:8111/indicators", {signal})
+      .then(response => response.json())
+      .then(json => {
+        data = json;
+        // gaijin code - ported from update_indicators
+        let isValid = data && data['valid']
+        let roots = [$('#indicators0'), $('li')]
+        for (let i=0; i<2; ++i) {
+          if (isValid) { 
+            roots[i].show();
+          } else { 
+            roots[i].hide();
           }
         }
-      }
-	  
-      // my code
-      
-      calc_energy(data, state);
-    })
-	  .catch(error => {
-		  console.log(error);
-	  });
-}, 50);
-
-// get state
-setInterval(function () {
-  fetch("http://localhost:8111/state")
-    .then(response => response.json())
-    .then(json => {
-     state = json;
-     // gaijin code - ported from update_state
-     let isValid = json && json['valid']
-        let roots = [$('#state0'), $('li')]
-        for (let i=0; i<2; ++i) {
-          if (isValid) { roots[i].show() } else { roots[i].hide() }
+        if (!isValid) {
+          getIndicators = true;
+          return;
         }
-        if (!isValid)
-          return
-          
-        //alert('isValid')
-          
-        let lists = [$('#state0 li'), $('#state1 li')]
+        
+        let lists = [$('#indicators0 li'), $('#indicators1 li')];
         for (let iList=0; iList<2; ++iList) {
-          let list = lists[iList]
+          let list = lists[iList];
           for (let iItem=0, nItems=list.length; iItem < nItems; ++iItem) {
-            let elem = $(list.get(iItem))
-            let id = elem.get(0).id.slice(4)
-            //alert('parameter id "' + id + '"')
-            if (id in json) {
-              elem.show()
-              elem.text(id+'='+json[id])
+            let elem = $(list.get(iItem));
+            let id = elem.get(0).id.slice(4);
+            if (id in data) {
+              elem.show();
+              elem.text(id+'='+data[id]);
             } else {
-              //alert('parameter id "' + id + '" not found')
-              elem.hide()
+              elem.hide();
             }
           }
         }
-     
-     // my code
-     calc_energy(data, state);
-    })
-	  .catch(error => {
-		  console.log(error);
-	  });
+      
+        // my code
+        
+        calc_energy(data, state);
+        getIndicators = true;
+      })
+      .catch(error => {
+        abortController.abort();
+        console.log(error);
+        getIndicators = true;
+      });
+  }
+}, 50);
+
+let getState = true;
+// get state
+setInterval(function () {
+  if (getState) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    getState = false;
+    fetch("http://localhost:8111/state", {signal})
+      .then(response => response.json())
+      .then(json => {
+       state = json;
+       // gaijin code - ported from update_state
+       let isValid = json && json['valid']
+          let roots = [$('#state0'), $('li')]
+          for (let i=0; i<2; ++i) {
+            if (isValid) { roots[i].show() } else { roots[i].hide() }
+          }
+          if (!isValid) {
+            getState = true;
+            return;
+          }
+            
+          //alert('isValid')
+            
+          let lists = [$('#state0 li'), $('#state1 li')]
+          for (let iList=0; iList<2; ++iList) {
+            let list = lists[iList]
+            for (let iItem=0, nItems=list.length; iItem < nItems; ++iItem) {
+              let elem = $(list.get(iItem))
+              let id = elem.get(0).id.slice(4)
+              //alert('parameter id "' + id + '"')
+              if (id in json) {
+                elem.show()
+                elem.text(id+'='+json[id])
+              } else {
+                //alert('parameter id "' + id + '" not found')
+                elem.hide()
+              }
+            }
+          }
+       
+       // my code
+       calc_energy(data, state);
+       getState = true;
+      })
+      .catch(error => {
+        abortController.abort();
+        console.log(error);
+        getState = true;
+      });
+  }
 }, 50);
 
 function calc_energy(data, state) {
