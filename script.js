@@ -1,7 +1,7 @@
 // globals
 let data = [];
 let state = [];
-var counter = 0;
+let counter = 0;
 
 let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
 
@@ -35,14 +35,16 @@ lastDmgMsgId = 0;
 
 // get objects
 setInterval(function() {
-	fetch("http://localhost:8111/map_obj.json")
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+	fetch("http://localhost:8111/map_obj.json", { signal })
 	  .then(response => {
 		  return response.json();
 	  })
 	  .then(json => {
 		  // gaijin code - ported from update_object_positions
 		  map_objects = json
-		  var dt = update_timers()
+		  let dt = update_timers()
 		  redraw_map(dt) 
 	  })
 	  .catch(error => {
@@ -53,6 +55,7 @@ setInterval(function() {
         return;
       }
 		  console.log(error);
+      abortController.abort();
 	  });
 }, 50);
 
@@ -61,8 +64,8 @@ setInterval(function() {
 	fetch("http://localhost:8111/map_info.json")
 	  .then(response => response.json())
 		.then(json => {			
-      var prevMapGen = (map_info && ('map_generation' in map_info)) ? map_info['map_generation'] : -1;
-      var newMapGen = (json && ('map_generation' in json)) ? json['map_generation'] : -1;
+      let prevMapGen = (map_info && ('map_generation' in map_info)) ? map_info['map_generation'] : -1;
+      let newMapGen = (json && ('map_generation' in json)) ? json['map_generation'] : -1;
     
 			map_info = json;
 			
@@ -87,8 +90,8 @@ setInterval(function() {
         return;
       }
       
-      var root = $('#game-chat-root #textlines');
-      for (var i=0; i<json.length; ++i) {
+      let root = $('#game-chat-root #textlines');
+      for (let i=0; i<json.length; ++i) {
         add_to_chat(root, json[i]);
       }
       
@@ -111,13 +114,13 @@ setInterval(function() {
         return;
       }
       
-      var msgEvt = json["events"];
-      var msgDmg = json["damage"];
-      var types = [[msgEvt, '#hud-evt-msg-root #textlines'], [msgDmg, '#hud-dmg-msg-root #textlines']];
-      for (var tp=0; tp<types.length; ++tp) {
-        var msg = types[tp][0];
-        var root = $(types[tp][1]);
-        for (var i=0; i<msg.length; ++i) {
+      let msgEvt = json["events"];
+      let msgDmg = json["damage"];
+      let types = [[msgEvt, '#hud-evt-msg-root #textlines'], [msgDmg, '#hud-dmg-msg-root #textlines']];
+      for (let tp=0; tp<types.length; ++tp) {
+        let msg = types[tp][0];
+        let root = $(types[tp][1]);
+        for (let i=0; i<msg.length; ++i) {
           add_to_chat(root, msg[i]);
         }
         root.get(0).scrollTop = root.get(0).scrollHeight;
@@ -142,9 +145,9 @@ setInterval(function () {
     .then(json => {
       data = json;
       // gaijin code - ported from update_indicators
-      var isValid = data && data['valid']
-      var roots = [$('#indicators0'), $('li')]
-      for (var i=0; i<2; ++i) {
+      let isValid = data && data['valid']
+      let roots = [$('#indicators0'), $('li')]
+      for (let i=0; i<2; ++i) {
         if (isValid) { 
           roots[i].show() 
         } else { 
@@ -154,12 +157,12 @@ setInterval(function () {
       if (!isValid)
       return
       
-      var lists = [$('#indicators0 li'), $('#indicators1 li')]
-      for (var iList=0; iList<2; ++iList) {
-        var list = lists[iList]
-        for (var iItem=0, nItems=list.length; iItem < nItems; ++iItem) {
-          var elem = $(list.get(iItem))
-          var id = elem.get(0).id.slice(4)
+      let lists = [$('#indicators0 li'), $('#indicators1 li')]
+      for (let iList=0; iList<2; ++iList) {
+        let list = lists[iList]
+        for (let iItem=0, nItems=list.length; iItem < nItems; ++iItem) {
+          let elem = $(list.get(iItem))
+          let id = elem.get(0).id.slice(4)
           if (id in data) {
             elem.show()
             elem.text(id+'='+data[id])
@@ -185,9 +188,9 @@ setInterval(function () {
     .then(json => {
      state = json;
      // gaijin code - ported from update_state
-     var isValid = json && json['valid']
-        var roots = [$('#state0'), $('li')]
-        for (var i=0; i<2; ++i) {
+     let isValid = json && json['valid']
+        let roots = [$('#state0'), $('li')]
+        for (let i=0; i<2; ++i) {
           if (isValid) { roots[i].show() } else { roots[i].hide() }
         }
         if (!isValid)
@@ -195,12 +198,12 @@ setInterval(function () {
           
         //alert('isValid')
           
-        var lists = [$('#state0 li'), $('#state1 li')]
-        for (var iList=0; iList<2; ++iList) {
-          var list = lists[iList]
-          for (var iItem=0, nItems=list.length; iItem < nItems; ++iItem) {
-            var elem = $(list.get(iItem))
-            var id = elem.get(0).id.slice(4)
+        let lists = [$('#state0 li'), $('#state1 li')]
+        for (let iList=0; iList<2; ++iList) {
+          let list = lists[iList]
+          for (let iItem=0, nItems=list.length; iItem < nItems; ++iItem) {
+            let elem = $(list.get(iItem))
+            let id = elem.get(0).id.slice(4)
             //alert('parameter id "' + id + '"')
             if (id in json) {
               elem.show()
@@ -224,9 +227,9 @@ function calc_energy(data, state) {
   let energy_speed = (data.speed**2/2);
   let energy_height = (g*state["H, m"]);
   let energy = energy_speed + energy_height;
-  document.getElementById("energy_speed").innerText = energy_speed.toFixed(0);
-  document.getElementById("energy_height").innerText = energy_height.toFixed(0);
-  document.getElementById("energy").innerText = energy.toFixed(0);
+  $("#energy_speed").text(energy_speed.toFixed(0));
+  $("#energy_height").text(energy_height.toFixed(0));
+  $("#energy").text(energy.toFixed(0));
 }
 
 // code ported from gaijin
@@ -315,7 +318,7 @@ function addWheelHandler(elem, onWheel) {
 }
 
 function clampMapPan() {
-  var canvas = document.getElementById('map-canvas');
+  let canvas = document.getElementById('map-canvas');
   map_pan[0] = clamp(map_pan[0], -(map_scale-1.0)*canvas.width, 0);
   map_pan[1] = clamp(map_pan[1], -(map_scale-1.0)*canvas.height, 0);
 }
@@ -323,11 +326,11 @@ function clampMapPan() {
 
 function mapOnWheel(e) {
   e = e || window.event;
-  var delta = e.wheelDelta ? e.wheelDelta : (e.deltaY || e.detail)*-40;
+  let delta = e.wheelDelta ? e.wheelDelta : (e.deltaY || e.detail)*-40;
   delta *= map_scale * 0.8;
 
-  var offsX = (e.offsetX!=undefined) ? e.offsetX : (e.pageX-$('#map-canvas').offset().left);
-  var offsY = (e.offsetY!=undefined) ? e.offsetY : (e.pageY-$('#map-canvas').offset().top);
+  let offsX = (e.offsetX!=undefined) ? e.offsetX : (e.pageX-$('#map-canvas').offset().left);
+  let offsY = (e.offsetY!=undefined) ? e.offsetY : (e.pageY-$('#map-canvas').offset().top);
   map_scale_new = clamp(map_scale + delta * 0.001, 1.0, 15.0);
   map_pan[0] = offsX - (offsX - map_pan[0])*map_scale_new / map_scale;
   map_pan[1] = offsY - (offsY - map_pan[1])*map_scale_new / map_scale;
@@ -362,8 +365,8 @@ function on_touch_event(e) {
 	  map_scale = clamp(map_scale * e.gesture.scale / prevScale, 1.0, 3.0);
 
 	  // scale shift
-	  var offsX = e.gesture.center.pageX - $('#map-canvas').offset().left;
-	  var offsY = e.gesture.center.pageY - $('#map-canvas').offset().top;
+	  let offsX = e.gesture.center.pageX - $('#map-canvas').offset().left;
+	  let offsY = e.gesture.center.pageY - $('#map-canvas').offset().top;
 	  map_pan[0] = offsX - (offsX - map_pan[0])*map_scale / scale0;
 	  map_pan[1] = offsY - (offsY - map_pan[1])*map_scale / scale0;
 	}
@@ -386,11 +389,11 @@ function on_touch_event(e) {
 
 function calcMapObjectColor(item) {
   if (('blink' in item) && (item['blink'])) {
-	var bv = (item['blink']==2 ? blinkHeavyVal : blinkNormalVal);
+	let bv = (item['blink']==2 ? blinkHeavyVal : blinkNormalVal);
 
-	var c0 = item['color[]'];
-	var c1 = [255, 255, 0];
-	var c = rgb_to_hex(Math.floor(lerp(c0[0], c1[0], bv)), Math.floor(lerp(c0[1], c1[1], bv)), Math.floor(lerp(c0[2], c1[2], bv)));
+	let c0 = item['color[]'];
+	let c1 = [255, 255, 0];
+	let c = rgb_to_hex(Math.floor(lerp(c0[0], c1[0], bv)), Math.floor(lerp(c0[1], c1[1], bv)), Math.floor(lerp(c0[2], c1[2], bv)));
 	return c;
   } else {
 	return item['color'];
@@ -401,25 +404,25 @@ function drawMapGrid(canvas) {
   if (!map_info || !('map_min' in map_info))
 	return
 
-  var ctx = canvas.getContext('2d')
-  var w = canvas.width
-  var h = canvas.height
-  var mapMin = map_info['map_min']
-  var mapMax = map_info['map_max']
-  var scX = w / (mapMax[0] - mapMin[0])
-  var scY = h / (mapMax[1] - mapMin[1])
+  let ctx = canvas.getContext('2d')
+  let w = canvas.width
+  let h = canvas.height
+  let mapMin = map_info['map_min']
+  let mapMax = map_info['map_max']
+  let scX = w / (mapMax[0] - mapMin[0])
+  let scY = h / (mapMax[1] - mapMin[1])
 
   ctx.lineWidth = 1
   ctx.strokeStyle = '#555'
 
   ctx.beginPath()
-  for (var y = mapMin[1]; y <= mapMax[1]; y += map_info['grid_steps'][1]) {
-	var yy = Math.floor((y-mapMin[1])*scY)+0.5
+  for (let y = mapMin[1]; y <= mapMax[1]; y += map_info['grid_steps'][1]) {
+	let yy = Math.floor((y-mapMin[1])*scY)+0.5
 	ctx.moveTo(0, yy)
 	ctx.lineTo(w, yy)
   }
-  for (var x = mapMin[0]; x <= mapMax[0]; x += map_info['grid_steps'][0]) {
-	var xx = Math.floor((x-mapMin[0])*scX)+0.5
+  for (let x = mapMin[0]; x <= mapMax[0]; x += map_info['grid_steps'][0]) {
+	let xx = Math.floor((x-mapMin[0])*scX)+0.5
 	ctx.moveTo(xx, 0)
 	ctx.lineTo(xx, h)
   }
@@ -430,15 +433,15 @@ function drawMapGrid(canvas) {
 
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'left'
-  for (var y = mapMin[1]+map_info['grid_steps'][1]*0.5, n=0; y <= mapMax[1] && n < 26; y += map_info['grid_steps'][1], ++n) {
-	var yy = Math.floor((y-mapMin[1])*scY)+0.5
+  for (let y = mapMin[1]+map_info['grid_steps'][1]*0.5, n=0; y <= mapMax[1] && n < 26; y += map_info['grid_steps'][1], ++n) {
+	let yy = Math.floor((y-mapMin[1])*scY)+0.5
 	ctx.fillText(String.fromCharCode(65+n), 3, yy)
   }
 
   ctx.textBaseline = 'top'
   ctx.textAlign = 'center'
-  for (var x = mapMin[0]+map_info['grid_steps'][0]*0.5, n=1; x <= mapMax[0]; x += map_info['grid_steps'][0], ++n) {
-	var xx = Math.floor((x-mapMin[0])*scX)+0.5
+  for (let x = mapMin[0]+map_info['grid_steps'][0]*0.5, n=1; x <= mapMax[0]; x += map_info['grid_steps'][0], ++n) {
+	let xx = Math.floor((x-mapMin[0])*scX)+0.5
 	ctx.fillText(n, xx, 3)
   }
 }
@@ -448,33 +451,33 @@ function drawMapGridScaled(canvas) {
   if (!map_info || !('map_min' in map_info))
 	return
 
-  var ctx = canvas.getContext('2d')
-  var w = canvas.width
-  var h = canvas.height
-  var mapMin = map_info['map_min']
-  var mapMax = map_info['map_max']
-  var gridSteps = map_info['grid_steps']
-  var scX = w * map_scale / (mapMax[0] - mapMin[0])
-  var scY = h * map_scale / (mapMax[1] - mapMin[1])
+  let ctx = canvas.getContext('2d')
+  let w = canvas.width
+  let h = canvas.height
+  let mapMin = map_info['map_min']
+  let mapMax = map_info['map_max']
+  let gridSteps = map_info['grid_steps']
+  let scX = w * map_scale / (mapMax[0] - mapMin[0])
+  let scY = h * map_scale / (mapMax[1] - mapMin[1])
 
-  var firstVisCellX = Math.floor((-map_pan[0] / scX) / gridSteps[0])
-  var firstVisCellY = Math.floor((-map_pan[1] / scY) / gridSteps[1])
-  var xVis0 = mapMin[0] + firstVisCellX * gridSteps[0]
-  var yVis0 = mapMin[1] + firstVisCellY * gridSteps[1]
-  var xVis1 = mapMin[0] + Math.ceil((w-map_pan[0]) / scX / gridSteps[0]) * gridSteps[0]
-  var yVis1 = mapMin[1] + Math.ceil((h-map_pan[1]) / scY / gridSteps[1]) * gridSteps[1]
+  let firstVisCellX = Math.floor((-map_pan[0] / scX) / gridSteps[0])
+  let firstVisCellY = Math.floor((-map_pan[1] / scY) / gridSteps[1])
+  let xVis0 = mapMin[0] + firstVisCellX * gridSteps[0]
+  let yVis0 = mapMin[1] + firstVisCellY * gridSteps[1]
+  let xVis1 = mapMin[0] + Math.ceil((w-map_pan[0]) / scX / gridSteps[0]) * gridSteps[0]
+  let yVis1 = mapMin[1] + Math.ceil((h-map_pan[1]) / scY / gridSteps[1]) * gridSteps[1]
 
   ctx.lineWidth = 1
   ctx.strokeStyle = '#555'
 
   ctx.beginPath()
-  for (var y = yVis0; y <= yVis1; y += gridSteps[1]) {
-	var yy = Math.floor((y-mapMin[1])*scY+map_pan[1])+0.5
+  for (let y = yVis0; y <= yVis1; y += gridSteps[1]) {
+	let yy = Math.floor((y-mapMin[1])*scY+map_pan[1])+0.5
 	ctx.moveTo(0, yy)
 	ctx.lineTo(w, yy)
   }
-  for (var x = xVis0; x <= xVis1; x += gridSteps[0]) {
-	var xx = Math.floor((x-mapMin[0])*scX+map_pan[0])+0.5
+  for (let x = xVis0; x <= xVis1; x += gridSteps[0]) {
+	let xx = Math.floor((x-mapMin[0])*scX+map_pan[0])+0.5
 	ctx.moveTo(xx, 0)
 	ctx.lineTo(xx, h)
   }
@@ -485,25 +488,25 @@ function drawMapGridScaled(canvas) {
 
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'left'
-  for (var y = yVis0+map_info['grid_steps'][1]*0.5, n=firstVisCellY; y <= yVis1 && n < 26; y += gridSteps[1], ++n) {
-	var yy = Math.floor((y-mapMin[1])*scY+map_pan[1])+0.5
+  for (let y = yVis0+map_info['grid_steps'][1]*0.5, n=firstVisCellY; y <= yVis1 && n < 26; y += gridSteps[1], ++n) {
+	let yy = Math.floor((y-mapMin[1])*scY+map_pan[1])+0.5
 	ctx.fillText(String.fromCharCode(65+n), 3, yy)
   }
 
   ctx.textBaseline = 'top'
   ctx.textAlign = 'center'
-  for (var x = xVis0+map_info['grid_steps'][0]*0.5, n=firstVisCellX; x <= xVis1; x += gridSteps[0], ++n) {
-	var xx = Math.floor((x-mapMin[0])*scX+map_pan[0])+0.5
+  for (let x = xVis0+map_info['grid_steps'][0]*0.5, n=firstVisCellX; x <= xVis1; x += gridSteps[0], ++n) {
+	let xx = Math.floor((x-mapMin[0])*scX+map_pan[0])+0.5
 	ctx.fillText(n+1, xx, 3)
   }
 }
 
 
 function draw_airfield(canvas, ctx, item) {
-  var sx = canvas.width *item['sx']*map_scale + map_pan[0]
-  var sy = canvas.height*item['sy']*map_scale + map_pan[1]
-  var ex = canvas.width *item['ex']*map_scale + map_pan[0]
-  var ey = canvas.height*item['ey']*map_scale + map_pan[1]
+  let sx = canvas.width *item['sx']*map_scale + map_pan[0]
+  let sy = canvas.height*item['sy']*map_scale + map_pan[1]
+  let ex = canvas.width *item['ex']*map_scale + map_pan[0]
+  let ey = canvas.height*item['ey']*map_scale + map_pan[1]
   
   ctx.lineWidth = 3.0*Math.sqrt(map_scale)
   ctx.strokeStyle = calcMapObjectColor(item)
@@ -515,20 +518,20 @@ function draw_airfield(canvas, ctx, item) {
 
 
 function draw_player(canvas, ctx, item, dt) {
-  var x = item['x']
-  var y = item['y']
-  var dir = $V([item['dx'], item['dy']])
+  let x = item['x']
+  let y = item['y']
+  let dir = $V([item['dx'], item['dy']])
 
   if (lastPlayerPos) {
-	var x0 = lastPlayerPos['x']
-	var y0 = lastPlayerPos['y']
+	let x0 = lastPlayerPos['x']
+	let y0 = lastPlayerPos['y']
 	if (Math.abs(x0 - x) < 0.01)
 	  x = approach(x0, x, dt, 0.4)
 	if (Math.abs(y0 - y) < 0.01)
 	  y = approach(y0, y, dt, 0.4)
 
-	var dir0 = $V(lastPlayerPos['dir'])
-	var angle = dir.signedAngle2DFrom(dir0)
+	let dir0 = $V(lastPlayerPos['dir'])
+	let angle = dir.signedAngle2DFrom(dir0)
 
 	if (angle > -Math.PI*0.25 && angle < Math.PI*0.25) {
 	  angle = approach(0.0, angle, dt, 0.4)
@@ -540,12 +543,12 @@ function draw_player(canvas, ctx, item, dt) {
   ctx.lineWidth = 2;
   ctx.strokeStyle = '#333';
   ctx.beginPath()
-  var w = 7.0
-  var l = 25.0
-  var dx = dir.at(0)
-  var dy = dir.at(1)
-  var sx = x*canvas.width*map_scale + map_pan[0]
-  var sy = y*canvas.height*map_scale + map_pan[1]
+  let w = 7.0
+  let l = 25.0
+  let dx = dir.at(0)
+  let dy = dir.at(1)
+  let sx = x*canvas.width*map_scale + map_pan[0]
+  let sy = y*canvas.height*map_scale + map_pan[1]
 
   // center arrow
   sx -= l*0.5*dx
@@ -564,8 +567,8 @@ function draw_player(canvas, ctx, item, dt) {
 
 
 function draw_map_object(canvas, ctx, item, rotate) {
-  var x = canvas.width*item['x']
-  var y = canvas.height*item['y']
+  let x = canvas.width*item['x']
+  let y = canvas.height*item['y']
 
   ctx.fillStyle = calcMapObjectColor(item)
   ctx.lineWidth = 1;
@@ -575,7 +578,7 @@ function draw_map_object(canvas, ctx, item, rotate) {
   ctx.textBaseline = 'middle'
   ctx.textAlign = 'center'
 
-  var s = null
+  let s = null
   if (item['icon'] == 'Airdefence')
 	s = '4'
   else if (item['icon'] == 'Structure')
@@ -597,13 +600,13 @@ function draw_map_object(canvas, ctx, item, rotate) {
   else
 	s = item['icon'][0]
 
-  var sx = x*map_scale + map_pan[0]
-  var sy = y*map_scale + map_pan[1]
+  let sx = x*map_scale + map_pan[0]
+  let sy = y*map_scale + map_pan[1]
   if (rotate)
   {
 	ctx.save()
 	ctx.translate(sx, sy)
-	var heading = Math.atan2(item.dx, -item.dy)
+	let heading = Math.atan2(item.dx, -item.dy)
 	ctx.rotate(heading)
 	ctx.translate(-sx, -sy)
 	ctx.fillText(s, sx, sy)
@@ -618,53 +621,53 @@ function draw_map_object(canvas, ctx, item, rotate) {
 }
 
 function redraw_map(dt) {
-  var canvas = document.getElementById('map-canvas')
-  var ctx = canvas.getContext('2d')
+  let canvas = document.getElementById('map-canvas')
+  let ctx = canvas.getContext('2d')
   //ctx.fillRect(0, 0, canvas.width, canvas.height)
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
   ctx.setTransform(map_scale, 0, 0, map_scale, map_pan[0], map_pan[1])
   if (map_image.complete && map_image.naturalWidth) {
-	ctx.drawImage(map_image, 0, 0, canvas.width, canvas.height)
+	  ctx.drawImage(map_image, 0, 0, canvas.width, canvas.height)
   }
 
   ctx.setTransform(1, 0, 0, 1, 0, 0)
   drawMapGridScaled(canvas)
 
-  var player = null
+  let player = null
   if ($.isArray(map_objects)) {
-	for (var i=0; i<map_objects.length; ++i) {
-	  var item = map_objects[i];
-	  if (item['type'] == 'airfield') {
-		draw_airfield(canvas, ctx, item)
-	  } else {
-		if (item['icon'] == 'Player') {
-		  player = item;
-		} else {
-		  var rotate = (item['type'] == 'respawn_base_fighter') || (item['type'] == 'respawn_base_bomber')
-		  draw_map_object(canvas, ctx, item, rotate)
-		}
-	  }
-	}
+    for (let i=0; i<map_objects.length; ++i) {
+      let item = map_objects[i];
+      if (item['type'] == 'airfield') {
+        draw_airfield(canvas, ctx, item)
+      } else {
+        if (item['icon'] == 'Player') {
+          player = item;
+        } else {
+          let rotate = (item['type'] == 'respawn_base_fighter') || (item['type'] == 'respawn_base_bomber')
+          draw_map_object(canvas, ctx, item, rotate)
+        }
+      }
+    }
   }
 
   if (player) {  
-	lastPlayerPos = draw_player(canvas, ctx, player, dt)
+    lastPlayerPos = draw_player(canvas, ctx, player, dt)
   } else {
-	lastPlayerPos = null
+    lastPlayerPos = null
   }
 }
 
 
 function update_timers() {
-  var t = new Date().getTime()
-  var dt = 0.0
+  let t = new Date().getTime()
+  let dt = 0.0
   if (lastT) {
 	dt = (t-lastT)*0.001
 	blinkNormalT += dt
 	blinkHeavyT += dt
-	var periodNormal = 2.0
-	var periodHeavy = 1.2
+	let periodNormal = 2.0
+	let periodHeavy = 1.2
 	if (blinkNormalT > periodNormal)
 	  blinkNormalT -= periodNormal*Math.floor(blinkNormalT / periodNormal)
 	if (blinkHeavyT > periodHeavy)
@@ -689,16 +692,16 @@ function add_to_chat(root, rec) {
   
   // if we've already added this message...
   // just exit
-  var existingEl = document.getElementById(messageType+rec.id);
+  let existingEl = $("#"+messageType+rec.id);
   if (existingEl) {
     return;
   }
   
-  var el = $(document.createElement('div'))
+  let el = $(document.createElement('div'))
   el.attr("id",messageType+rec.id);
   el.addClass('chat-line')
   if (rec.sender) {
-	var s = ''
+	let s = ''
 	if (rec['mode']) {
 	  s += '['+rec['mode']+'] '
   }
@@ -717,13 +720,13 @@ function update_hud_msg(data) {
   if (!data)
 	return
 
-  var msgEvt = data['events']
-  var msgDmg = data['damage']
-  var types = [[msgEvt, '#hud-evt-msg-root #textlines'], [msgDmg, '#hud-dmg-msg-root #textlines']]
-  for (var tp=0; tp<types.length; ++tp) {
-	var msg = types[tp][0]
-	var root = $(types[tp][1])
-	for (var i=0; i<msg.length; ++i) {
+  let msgEvt = data['events']
+  let msgDmg = data['damage']
+  let types = [[msgEvt, '#hud-evt-msg-root #textlines'], [msgDmg, '#hud-dmg-msg-root #textlines']]
+  for (let tp=0; tp<types.length; ++tp) {
+	let msg = types[tp][0]
+	let root = $(types[tp][1])
+	for (let i=0; i<msg.length; ++i) {
 	  add_to_chat(root, msg[i])
 	}
 	root.get(0).scrollTop = root.get(0).scrollHeight
@@ -737,7 +740,7 @@ function update_hud_msg(data) {
 
 
 function updateFast() {
-  var dt = update_timers()
+  let dt = update_timers()
   if (!isDraggingMap && !isTransformingMap)
 	redraw_map(dt)
 }
@@ -749,11 +752,11 @@ function normalizeText(text) {
 
 
 function localize_static() {
-  var elems = $('.loc')
-  var len = elems.length
-  for (var i=0; i<len; ++i) {
-	var e = $(elems[i])
-	var key = e.text()
+  let elems = $('.loc')
+  let len = elems.length
+  for (let i=0; i<len; ++i) {
+	let e = $(elems[i])
+	let key = e.text()
 	if (key in loc_tbl)
 	  e.text(loc_tbl[key])
   }
@@ -761,7 +764,7 @@ function localize_static() {
 
 
 function page_log(data) {
-  var el = $('<div></div>')
+  let el = $('<div></div>')
   el.text(data)
   $(document.body).append(el)
 }
@@ -789,20 +792,20 @@ function set_pos_prop(elem, field, val) {
   if (field == 'width' || field == 'height')
 	return elem[field](val)
   else {
-	var offs = elem.offset()
+	let offs = elem.offset()
 	offs[field] = val
 	elem.offset(offs)
   }
 }
 
 function load_positions() {
-  for (var id in pos_save_elem_ids) {
-    var cookieVal = Cookies.get(id)
+  for (let id in pos_save_elem_ids) {
+    let cookieVal = Cookies.get(id)
     if (cookieVal) {
-      var elem = $(id)
-      var values = cookieVal.split('|')
-      for (var vi in values) {
-        var kv = values[vi].split(':');
+      let elem = $(id)
+      let values = cookieVal.split('|')
+      for (let vi in values) {
+        let kv = values[vi].split(':');
         if (kv.length==2) {
           set_pos_prop(elem, kv[0], kv[1])
         }
@@ -810,18 +813,18 @@ function load_positions() {
     }
   }
 
-  var canvas = $('#map-canvas')
+  let canvas = $('#map-canvas')
   canvas.get(0).width  = canvas.width()
   canvas.get(0).height = canvas.height()
 }
 
 
 function save_positions() {
-  for (var id in pos_save_elem_ids) {
-	var elem = $(id)
-	var fields = pos_save_elem_ids[id]
-	var cookieVal = ''
-	for (var idx in fields) {
+  for (let id in pos_save_elem_ids) {
+	let elem = $(id)
+	let fields = pos_save_elem_ids[id]
+	let cookieVal = ''
+	for (let idx in fields) {
 	  if (cookieVal) cookieVal+='|';
 	  cookieVal += fields[idx]+':'+get_pos_prop(elem, fields[idx])
 	}
@@ -832,47 +835,47 @@ function save_positions() {
 
 
 function save_indicators_order(event, ui) {
-  var lists = [$('#indicators0 li'), $('#indicators1 li')]
-  var order = [[],[]]
-  for (var iList=0; iList<2; ++iList) {
-	for (var iItem=0, nItems=lists[iList].length; iItem<nItems; ++iItem) {
+  let lists = [$('#indicators0 li'), $('#indicators1 li')]
+  let order = [[],[]]
+  for (let iList=0; iList<2; ++iList) {
+	for (let iItem=0, nItems=lists[iList].length; iItem<nItems; ++iItem) {
 	  order[iList].push(lists[iList][iItem].id.slice(4))
 	}
   }
-  var val = order[0].join('|') + ':' + order[1].join('|')
+  let val = order[0].join('|') + ':' + order[1].join('|')
   Cookies.set('indicators', val, {expires:cookieLifeTime})
 }
 
 function save_state_order(event, ui) {
-  var lists = [$('#state0 li'), $('#state1 li')]
-  var order = [[],[]]
-  for (var iList=0; iList<2; ++iList) {
-	for (var iItem=0, nItems=lists[iList].length; iItem<nItems; ++iItem) {
+  let lists = [$('#state0 li'), $('#state1 li')]
+  let order = [[],[]]
+  for (let iList=0; iList<2; ++iList) {
+	for (let iItem=0, nItems=lists[iList].length; iItem<nItems; ++iItem) {
 	  order[iList].push(lists[iList][iItem].id.slice(4))
 	}
   }
-  var val = order[0].join('|') + ':' + order[1].join('|')
+  let val = order[0].join('|') + ':' + order[1].join('|')
   Cookies.set('state', val, {expires:cookieLifeTime})
 }
 
 function fill_indicators_list() {
-  var addElem = function(root, id) {
-	var elem = $('<li id="ind-'+id+'" style="display:none;"></li>')
-	//var elem = $('<li id="ind-'+id+'">'+id+'</li>')
+  let addElem = function(root, id) {
+	let elem = $('<li id="ind-'+id+'" style="display:none;"></li>')
+	//let elem = $('<li id="ind-'+id+'">'+id+'</li>')
 	root.append(elem)
   }
 
-  var fullIndIdList = indicator_columns[0].concat(indicator_columns[1])
+  let fullIndIdList = indicator_columns[0].concat(indicator_columns[1])
 
-  var savedVal = Cookies.get('indicators')
-  var order = [[], []]
+  let savedVal = Cookies.get('indicators')
+  let order = [[], []]
   if (savedVal) {
-	var s = savedVal.split(':')
+	let s = savedVal.split(':')
 	order = [s[0].split('|'), s[1].split('|')]
-	for (var iList=0; iList<2; ++iList) {
-	  var root = $('#indicators'+iList)
-	  for (var iItem=0, nItems=s[iList].length; iItem<nItems; ++iItem) {
-		var id = order[iList][iItem]
+	for (let iList=0; iList<2; ++iList) {
+	  let root = $('#indicators'+iList)
+	  for (let iItem=0, nItems=s[iList].length; iItem<nItems; ++iItem) {
+		let id = order[iList][iItem]
 		if (fullIndIdList.indexOf(id) >= 0) {
 		  addElem(root, id)
 		}
@@ -880,12 +883,12 @@ function fill_indicators_list() {
 	}          
   }
 
-  var savedIdsListFull = order[0].concat(order[1])
+  let savedIdsListFull = order[0].concat(order[1])
 
-  for (var iList=0; iList<2; ++iList) {
-	var list = indicator_columns[iList]
-	var root = $('#indicators'+iList)
-	for (var iItem=0; iItem<list.length; ++iItem) {
+  for (let iList=0; iList<2; ++iList) {
+	let list = indicator_columns[iList]
+	let root = $('#indicators'+iList)
+	for (let iItem=0; iItem<list.length; ++iItem) {
 	  if (savedIdsListFull.indexOf(list[iItem]) < 0) {
 		addElem(root, list[iItem])
 	  }
@@ -894,23 +897,23 @@ function fill_indicators_list() {
 }
 
 function fill_state_list() {
- var addElem = function(root, id) {
-	var elem = $('<li id="stt-'+id+'" style="display:none;"></li>')
-	//var elem = $('<li id="stt-'+id+'">'+id+'</li>')
+ let addElem = function(root, id) {
+	let elem = $('<li id="stt-'+id+'" style="display:none;"></li>')
+	//let elem = $('<li id="stt-'+id+'">'+id+'</li>')
 	root.append(elem)
   }
 
-  var fullStateIdList = state_columns[0].concat(state_columns[1])
+  let fullStateIdList = state_columns[0].concat(state_columns[1])
 
-  var savedVal = Cookies.get('state')
-  var order = [[], []]
+  let savedVal = Cookies.get('state')
+  let order = [[], []]
   if (savedVal) {
-	var s = savedVal.split(':')
+	let s = savedVal.split(':')
 	order = [s[0].split('|'), s[1].split('|')]
-	for (var iList=0; iList<2; ++iList) {
-	  var root = $('#state'+iList)
-	  for (var iItem=0, nItems=s[iList].length; iItem<nItems; ++iItem) {
-		var id = order[iList][iItem]
+	for (let iList=0; iList<2; ++iList) {
+	  let root = $('#state'+iList)
+	  for (let iItem=0, nItems=s[iList].length; iItem<nItems; ++iItem) {
+		let id = order[iList][iItem]
 		if (fullStateIdList.indexOf(id) >= 0) {
 		  addElem(root, id)
 		}
@@ -918,12 +921,12 @@ function fill_state_list() {
 	}          
   }
 
-  var savedStateListFull = order[0].concat(order[1])
+  let savedStateListFull = order[0].concat(order[1])
 
-  for (var iList=0; iList<2; ++iList) {
-	var list = state_columns[iList]
-	var root = $('#state'+iList)
-	for (var iItem=0; iItem<list.length; ++iItem) {
+  for (let iList=0; iList<2; ++iList) {
+	let list = state_columns[iList]
+	let root = $('#state'+iList)
+	for (let iItem=0; iItem<list.length; ++iItem) {
 	  if (savedStateListFull.indexOf(list[iItem]) < 0) {
 		addElem(root, list[iItem])
 	  }
@@ -934,7 +937,7 @@ function fill_state_list() {
 function init() {
   localize_static()
 
-  var canvasEl = document.getElementById('map-canvas')
+  let canvasEl = document.getElementById('map-canvas')
   
   addWheelHandler(canvasEl, mapOnWheel)
   canvasEl.onselectstart = function() {return false} //== Chrome fix
@@ -943,9 +946,9 @@ function init() {
   //Hammer.plugins.showTouches();
   //Hammer.plugins.fakeMultitouch();
 
-  var ht = Hammer(canvasEl, hammer_opt)
-  var events = ['drag', 'dragstart', 'dragend', 'transform', 'transformstart', 'transformend']
-  for (var ei in events) {
+  let ht = Hammer(canvasEl, hammer_opt)
+  let events = ['drag', 'dragstart', 'dragend', 'transform', 'transformstart', 'transformend']
+  for (let ei in events) {
 	ht.on(events[ei], on_touch_event)
   }
 
@@ -953,9 +956,9 @@ function init() {
   fill_indicators_list()
   fill_state_list()
 
-  var interactive = ['#game-chat-root', '#hud-evt-msg-root', '#hud-dmg-msg-root', '#energy-data']
-  for (var i in interactive) {
-    var el = $(interactive[i]);
+  let interactive = ['#game-chat-root', '#hud-evt-msg-root', '#hud-dmg-msg-root', '#energy-data']
+  for (let i in interactive) {
+    let el = $(interactive[i]);
     el.draggable({handle:'#draghandle', stop:save_positions})
       .resizable({stop:save_positions});
   }
@@ -969,8 +972,8 @@ function init() {
 	minWidth: 256,
 	minHeight: 256,
 	stop: function(event, ui) {
-	  var canvas = ui.element.find('canvas').get(0)
-	  var factor = ui.size.width / canvas.width
+	  let canvas = ui.element.find('canvas').get(0)
+	  let factor = ui.size.width / canvas.width
 	  canvas.width = ui.size.width
 	  canvas.height = ui.size.height
 	  map_pan[0] *= factor
@@ -1012,10 +1015,10 @@ function approach(from, to, dt, viscosity) {
 
 
 function rgb_to_hex(r, g, b) {
-  var rr = r.toString(16)
-  var gg = g.toString(16)
-  var bb = b.toString(16)
-  var str = "#" + 
+  let rr = r.toString(16)
+  let gg = g.toString(16)
+  let bb = b.toString(16)
+  let str = "#" + 
     (rr.length == 1 ? "0" + rr : rr) + 
     (gg.length == 1 ? "0" + gg : gg) + 
     (bb.length == 1 ? "0" + bb : bb);
@@ -1025,7 +1028,7 @@ function rgb_to_hex(r, g, b) {
 // IE support
 if (!Array.indexOf) {
   Array.prototype.indexOf = function(obj) {
-    for (var i=0; i<this.length; i++) {
+    for (let i=0; i<this.length; i++) {
       if (this[i]==obj)
          return i;
     }
