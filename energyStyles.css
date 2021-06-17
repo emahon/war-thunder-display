@@ -8,5 +8,18 @@ body {
   background-color: rgba(20, 30, 25, 0.5);
   display:table;
   position: absolute;
-  left: 5px; top: 0px;
+  margin-left: 5px;
+  width: content;
+}
+
+#energy-chart {
+  width: 33%;
+}
+
+#power {
+  width: 33%;
+}
+
+#specific-energy {
+  width: 33%;
 }
