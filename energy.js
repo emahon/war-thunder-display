@@ -12,6 +12,10 @@ let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
 google.charts.load('current', {'packages': ['corechart']});
 google.charts.setOnLoadCallback(chart_energy);
 
+// make number formatting object for performance reasons
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
+let numberFormat = new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
 let indicatorsNumRequests = 0;
 let indicatorRequestNum = 0;
 // get indicators
@@ -69,18 +73,23 @@ setInterval(function () {
 }, 100);
 
 function calc_energy() {
+  if (speedArray.length !== altArray.length) {
+    // only update when both speed and altitude are on same step
+    return;
+  }
   let index = Math.min(speedArray.length, altArray.length) - 1;
   let energy_speed = (speedArray[index]**2/2);
   let energy_height = (g*altArray[index]);
   let energy = energy_speed + energy_height;
   energyArray[index] = energy;
-  document.getElementById("energy_speed").innerText = (energy_speed.toFixed(0));
-  document.getElementById("energy_height").innerText = (energy_height.toFixed(0));
-  document.getElementById("energy").innerText = (energy.toFixed(0));
+  document.getElementById("energy_speed").innerText = numberFormat.format(energy_speed);
+  document.getElementById("energy_height").innerText = numberFormat.format(energy_height);
+  document.getElementById("energy").innerText = numberFormat.format(energy);
 }
 
 function chart_energy() {
   var chartData = google.visualization.arrayToDataTable([
+    ["Request #", "Total Energy"],
   ]);
 }
 
