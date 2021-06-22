@@ -8,18 +8,26 @@ body {
   background-color: rgba(20, 30, 25, 0.5);
   display:table;
   position: absolute;
-  margin-left: 5px;
-  width: content;
+  padding-left: 1%;
+  width: 98%;
 }
 
 #energy-chart {
   width: 33%;
+  float: left;
+  white-space: no-wrap;
+  margin-right: 5px;
 }
 
 #power {
   width: 33%;
+  float: left;
+  white-space: no-wrap;
+  margin-right: 5px;
 }
 
 #specific-energy {
   width: 33%;
+  float: left;
+  white-space: no-wrap;
 }
