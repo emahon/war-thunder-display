@@ -22,14 +22,17 @@ let numberFormat = new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, ma
 
 let indicatorsNumRequests = 0;
 let indicatorRequestNum = 0;
+let indicatorResettable = 0;
+setInterval(() => { indicatorResettable = 0 }, timeoutInterval * 10);
 // get indicators
 setInterval(function () {
   if (indicatorsNumRequests < 3) {
     const abortController = new AbortController();
     const signal = abortController.signal;
     indicatorsNumRequests++;
+    indicatorResettable++;
     let inRequestNum = indicatorRequestNum++;
-    const timeout = setTimeout(() => abortController.abort(), timeoutInterval);
+    const timeout = setTimeout(() => {abortController.abort()}, timeoutInterval);
     
     fetch("http://localhost:8111/indicators", {signal})
       .then(response => response.json())
@@ -40,6 +43,7 @@ setInterval(function () {
         speedArray[inRequestNum] = data.speed;
         
         calc_energy();
+        display_power();
         indicatorsNumRequests--;
       })
       .catch(error => {
@@ -52,14 +56,17 @@ setInterval(function () {
 
 let stateNumRequests = 0;
 let stateRequestNum = 0;
+let stateResettable = 0;
+setInterval(() => { stateResettable = 0}, timeoutInterval * 10);
 // get state
 setInterval(function () {
   if (stateNumRequests < 3) {
     const abortController = new AbortController();
     const signal = abortController.signal;
     stateNumRequests++;
+    stateResettable++;
     let stateRequestNumLocal = stateRequestNum++;
-    const timeout = setTimeout(() => abortController.abort(), timeoutInterval);
+    const timeout = setTimeout(() => {abortController.abort()}, timeoutInterval);
     
     fetch("http://localhost:8111/state", {signal})
       .then(response => response.json())
@@ -70,6 +77,7 @@ setInterval(function () {
        
        altArray[stateRequestNumLocal] = state["H, m"];
        calc_energy();
+       display_power();
        stateNumRequests--;
       })
       .catch(error => {
@@ -82,13 +90,17 @@ setInterval(function () {
 
 let mapNumRequests = 0;
 let mapRequestNum = 0;
+let mapResettable = 0;
+setInterval(() => {mapResettable = 0}, timeoutInterval*10);
 setInterval(function() {
+  let mapRequestNumLocal = mapRequestNum++;
+  
   if (mapNumRequests < 3) {
     const abortController = new AbortController();
     const signal = abortController.signal;
     mapNumRequests++;
-    let mapRequestNumLocal = mapRequestNum++;
-    const timeout = setTimeout(() => abortController.abort(), timeoutInterval);
+    mapResettable++;
+    const timeout = setTimeout(() => {abortController.abort()}, timeoutInterval);
     
     fetch("http://localhost:8111/map_info.json", {signal})
       .then(response => response.json())
@@ -104,7 +116,7 @@ setInterval(function() {
 }, requestInterval)
 
 function calc_energy() {
-  if (speedArray.length !== altArray.length) {
+  if (stateResettable !== indicatorResettable) {
     // only update when both speed and altitude are on same step
     return;
   }
@@ -124,6 +136,51 @@ function chart_energy() {
   ]);
 }
 
-function calc_power(energy, time) {
+function display_power() {
+  if (stateResettable !== indicatorResettable) {
+    // only update when both speed and altitude are on same step
+    return;
+  }
   
+  let power2sec = "";
+  let power10sec = "";
+  let power60sec = "";
+  let power600sec = "";
+  
+  if (speedArray.length >= 8) {
+    power2sec = calc_power(2);
+  }
+  
+  if (speedArray.length >= 40) {
+    power10sec = calc_power(10);
+  }
+  
+  if (speedArray.length >= 240) {
+    power60sec = calc_power(60);
+  }
+  
+  if (speedArray.length >= 2400) {
+    power600sec = calc_power(600);
+  }
+  
+  document.getElementById("power-2").innerText = numberFormat.format(power2sec);
+  document.getElementById("power-10").innerText = numberFormat.format(power10sec);
+  document.getElementById("power-60").innerText = numberFormat.format(power60sec);
+  document.getElementById("power-600").innerText = numberFormat.format(power600sec);
+}
+
+function calc_power(time) {
+  let prevStep = time / .25; // time needs to be in seconds
+  //if (mapInfoArray[mapInfoArray.length - 1] != mapInfoArray[mapInfoArray.length - 1 - prevStep]) {
+  //  // diff map I think?????
+  //  console.log(mapInfoArray[mapInfoArray.length - 1]);
+  //  console.log(mapInfoArray[mapInfoArray.length - 1 - prevStep]);
+  //  return null;
+  //}
+  
+  let finalEnergy = energyArray[energyArray.length - 1];
+  let initialEnergy = energyArray[energyArray.length - 1 - prevStep];
+  let deltaEnergy = finalEnergy - initialEnergy;
+  let power = deltaEnergy/time;
+  return power;
 }
