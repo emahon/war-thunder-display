@@ -2,11 +2,15 @@
 let data = [];
 let state = [];
 
+let mapInfoArray = [];
 let speedArray = [];
 let altArray = [];
 let energyArray = [];
 
 let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
+
+let requestInterval = 250; // time between requests (ms)
+let timeoutInterval = 1000; // when to abort a request due to timeout (ms)
 
 //https://developers-dot-devsite-v2-prod.appspot.com/chart/interactive/docs/gallery/linechart.html
 google.charts.load('current', {'packages': ['corechart']});
@@ -20,11 +24,13 @@ let indicatorsNumRequests = 0;
 let indicatorRequestNum = 0;
 // get indicators
 setInterval(function () {
-  if (indicatorsNumRequests < 100) {
+  if (indicatorsNumRequests < 3) {
     const abortController = new AbortController();
     const signal = abortController.signal;
     indicatorsNumRequests++;
     let inRequestNum = indicatorRequestNum++;
+    const timeout = setTimeout(() => abortController.abort(), timeoutInterval);
+    
     fetch("http://localhost:8111/indicators", {signal})
       .then(response => response.json())
       .then(json => {
@@ -42,17 +48,19 @@ setInterval(function () {
         indicatorsNumRequests--;
       });
   }
-}, 250);
+}, requestInterval);
 
 let stateNumRequests = 0;
 let stateRequestNum = 0;
 // get state
 setInterval(function () {
-  if (stateNumRequests < 100) {
+  if (stateNumRequests < 3) {
     const abortController = new AbortController();
     const signal = abortController.signal;
     stateNumRequests++;
     let stateRequestNumLocal = stateRequestNum++;
+    const timeout = setTimeout(() => abortController.abort(), timeoutInterval);
+    
     fetch("http://localhost:8111/state", {signal})
       .then(response => response.json())
       .then(json => {
@@ -70,7 +78,30 @@ setInterval(function () {
         stateNumRequests--;
       });
   }
-}, 250);
+}, requestInterval);
+
+let mapNumRequests = 0;
+let mapRequestNum = 0;
+setInterval(function() {
+  if (mapNumRequests < 3) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    mapNumRequests++;
+    let mapRequestNumLocal = mapRequestNum++;
+    const timeout = setTimeout(() => abortController.abort(), timeoutInterval);
+    
+    fetch("http://localhost:8111/map_info.json", {signal})
+      .then(response => response.json())
+      .then(json => {
+        mapInfoArray[mapRequestNumLocal] = json;
+        mapNumRequests--;
+      })
+      .catch(error => {
+        abortController.abort();
+        mapNumRequests--;
+      });
+  }
+}, requestInterval)
 
 function calc_energy() {
   if (speedArray.length !== altArray.length) {
