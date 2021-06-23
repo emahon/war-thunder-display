@@ -42,7 +42,7 @@ setInterval(function () {
         indicatorsNumRequests--;
       });
   }
-}, 100);
+}, 250);
 
 let stateNumRequests = 0;
 let stateRequestNum = 0;
@@ -70,7 +70,7 @@ setInterval(function () {
         stateNumRequests--;
       });
   }
-}, 100);
+}, 250);
 
 function calc_energy() {
   if (speedArray.length !== altArray.length) {
