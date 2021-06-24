@@ -12,13 +12,21 @@ let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
 let requestInterval = 250; // time between requests (ms)
 let timeoutInterval = 1000; // when to abort a request due to timeout (ms)
 
-//https://developers-dot-devsite-v2-prod.appspot.com/chart/interactive/docs/gallery/linechart.html
-google.charts.load('current', {'packages': ['corechart']});
-google.charts.setOnLoadCallback(chart_energy);
-
 // make number formatting object for performance reasons
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
 let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5, maximumSignificantDigits: 5 });
+
+// chart stuff
+// smoothiecharts.org
+  let smoothie = new SmoothieChart({
+    interpolation:'linear',
+    yRangeFunction: calc_chart_y,
+    grid:{sharpLines:true,millisPerLine:10000,verticalSections:0},
+    responsive:true
+   });
+let totEnergySeries = new TimeSeries();
+let spdEnergySeries = new TimeSeries();
+let altEnergySeries = new TimeSeries();
 
 let indicatorsNumRequests = 0;
 let indicatorRequestNum = 0;
@@ -128,6 +136,12 @@ function calc_energy() {
   document.getElementById("energy_speed").innerText = numberFormat.format(energy_speed);
   document.getElementById("energy_height").innerText = numberFormat.format(energy_height);
   document.getElementById("energy").innerText = numberFormat.format(energy);
+  
+  let time = new Date().getTime();
+  
+  totEnergySeries.append(time, energy);
+  spdEnergySeries.append(time, energy_speed);
+  altEnergySeries.append(time, energy_height);
 }
 
 function chart_energy() {
@@ -190,3 +204,25 @@ function calc_power(time) {
   let power = deltaEnergy/time;
   return power;
 }
+
+function calc_chart_y(range) {
+  let maxEnergy = Math.max(totEnergySeries.maxValue, spdEnergySeries.maxValue, altEnergySeries.maxValue);
+  let minEnergy = Math.min(totEnergySeries.minValue, spdEnergySeries.minValue, altEnergySeries.minValue);
+  
+  // put a 10% margin on either side so all lines are visible
+  let diff = Math.abs(maxEnergy - minEnergy);
+  
+  let min = Math.min((minEnergy - diff*.1),0);
+  let max = Math.max((maxEnergy + diff*.1),0);
+  
+  return {min: min, max: max};
+}
+
+function onLoad() {
+  smoothie.streamTo(document.getElementById("chart"), 250); // delay by 1 tick
+  smoothie.addTimeSeries(totEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(255,255,255)'});
+  smoothie.addTimeSeries(spdEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(234,146,23)' });
+  smoothie.addTimeSeries(altEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(0,0,255)' });
+}
+
+window.onload = onLoad;

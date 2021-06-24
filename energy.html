@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
     <title>Energy</title>
 	<link rel="stylesheet" href="energyStyles.css">
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="energy.js"></script>
+    <script type="text/javascript" src="smoothie.js"></script>
+    <script type="text/javascript" src="energy.js"></script>
 </head>
 <body>
 
@@ -14,6 +14,7 @@
   <div id="energy-data">
     <div class="caption"><div id="draghandle"></div></div>
     <div id="energy-chart">
+        <canvas id="chart" style="width:100%; height:200px"></canvas>
     </div>
     <div id="power">
         <span>P<sub>Sp,T=2</sub> = <span id="power-2"></span></span> W/kg<br />
