@@ -18,7 +18,7 @@ google.charts.setOnLoadCallback(chart_energy);
 
 // make number formatting object for performance reasons
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
-let numberFormat = new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5, maximumSignificantDigits: 5 });
 
 let indicatorsNumRequests = 0;
 let indicatorRequestNum = 0;
