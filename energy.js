@@ -234,7 +234,7 @@ function onLoad() {
   smoothie.streamTo(document.getElementById("chart"), 250); // delay by 1 tick
   smoothie.addTimeSeries(totEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(255,255,255)'});
   smoothie.addTimeSeries(spdEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(234,146,23)' });
-  smoothie.addTimeSeries(altEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(0,0,255)' });
+  smoothie.addTimeSeries(altEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(0,128,255)' });
 }
 
 window.onload = onLoad;
