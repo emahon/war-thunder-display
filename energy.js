@@ -18,12 +18,6 @@ let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5,
 
 // chart stuff
 // smoothiecharts.org
-  let smoothie = new SmoothieChart({
-    interpolation:'linear',
-    yRangeFunction: calc_chart_y,
-    grid:{sharpLines:true,millisPerLine:10000,verticalSections:0},
-    responsive:true
-   });
 let totEnergySeries = new TimeSeries();
 let spdEnergySeries = new TimeSeries();
 let altEnergySeries = new TimeSeries();
@@ -219,6 +213,24 @@ function calc_chart_y(range) {
 }
 
 function onLoad() {
+  // internal dimensions of chart never update
+  // so by setting the milliseconds per pixel based on original size
+  // even if the screen resizes it'll still show the right time period
+  
+  // this includes padding and margin... is that a problem?
+  let initialWidth = document.getElementById("chart").offsetWidth;
+  
+  let smoothie = new SmoothieChart({
+    interpolation:'linear',
+    yRangeFunction: calc_chart_y,
+    grid:{sharpLines:true,millisPerLine:10000,verticalSections:0},
+    responsive:true,
+    title: {
+        text: "E (J/kg)"
+      },
+    millisPerPixel: 60000/initialWidth // 60000 = 60 seconds
+   });
+  
   smoothie.streamTo(document.getElementById("chart"), 250); // delay by 1 tick
   smoothie.addTimeSeries(totEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(255,255,255)'});
   smoothie.addTimeSeries(spdEnergySeries, { lineWidth: 2, strokeStyle: 'rgb(234,146,23)' });

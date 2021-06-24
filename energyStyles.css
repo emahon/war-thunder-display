@@ -31,3 +31,11 @@ body {
   float: left;
   white-space: no-wrap;
 }
+
+#energy-speed-container {
+  color: rgb(234,146,23);
+}
+
+#energy-height-container {
+  color: rgb(0,0,255);
+}
