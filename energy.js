@@ -142,10 +142,15 @@ function display_power() {
     return;
   }
   
+  let powerInst = "";
   let power2sec = "";
   let power10sec = "";
   let power60sec = "";
   let power600sec = "";
+  
+  if (speedArray.length >= 1) {
+    powerInst = calc_power(.25);
+  }
   
   if (speedArray.length >= 8) {
     power2sec = calc_power(2);
@@ -163,6 +168,7 @@ function display_power() {
     power600sec = calc_power(600);
   }
   
+  document.getElementById("power-inst").innerText = numberFormat.format(powerInst);
   document.getElementById("power-2").innerText = numberFormat.format(power2sec);
   document.getElementById("power-10").innerText = numberFormat.format(power10sec);
   document.getElementById("power-60").innerText = numberFormat.format(power60sec);
