@@ -212,6 +212,10 @@ function calc_chart_y(range) {
   return {min: min, max: max};
 }
 
+function formatLabels(number, precision) {
+  return numberFormat.format(number);
+}
+
 function onLoad() {
   // internal dimensions of chart never update
   // so by setting the milliseconds per pixel based on original size
@@ -221,9 +225,15 @@ function onLoad() {
   let initialWidth = document.getElementById("chart").offsetWidth;
   
   let smoothie = new SmoothieChart({
+    labels: {
+      showIntermediateLabels: true
+    },
+    yMinFormatter: formatLabels,
+    yMaxFormatter: formatLabels,
+    yIntermediateFormatter: formatLabels,
     interpolation:'linear',
-    yRangeFunction: calc_chart_y,
-    grid:{sharpLines:true,millisPerLine:10000,verticalSections:0},
+    //yRangeFunction: calc_chart_y,
+    grid:{sharpLines:true,millisPerLine:10000,verticalSections:5},
     responsive:true,
     title: {
         text: "E (J/kg)"
@@ -233,8 +243,8 @@ function onLoad() {
   
   smoothie.streamTo(document.getElementById("chart"), 250); // delay by 1 tick
   smoothie.addTimeSeries(totEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(255,255,255)'});
-  smoothie.addTimeSeries(spdEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(234,146,23)' });
-  smoothie.addTimeSeries(altEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(0,128,255)' });
+  //smoothie.addTimeSeries(spdEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(234,146,23)' });
+  //smoothie.addTimeSeries(altEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(0,128,255)' });
 }
 
 window.onload = onLoad;
