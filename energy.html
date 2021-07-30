@@ -4,7 +4,8 @@
 <meta charset="UTF-8" />
     <title>Energy</title>
 	<link rel="stylesheet" href="energyStyles.css">
-    <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+    <!--<script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>-->
+	<script type="text/javascript" src="smoothie.js"></script>
     <script type="text/javascript" src="energy.js"></script>
 </head>
 <body>
@@ -14,11 +15,12 @@
   <div id="energy-data">
     <div class="caption"><div id="draghandle"></div></div>
     <div id="energy-chart">
-        <figure class="highcharts-figure">
+        <!--<figure class="highcharts-figure">
         <div id="container"></div>
         <p class="highcharts-description">
             Chart of current energy, updated every ~250 ms and showing the last 60 seconds.
-        </p>
+        </p>-->
+		<canvas id="chart" style="width:100%; height:200px"></canvas>
     </figure>
     </div>
     <div id="power">
