@@ -20,7 +20,7 @@ let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5,
 // https://www.highcharts.com/demo/dynamic-update
 // https://api.highcharts.com/highcharts/yAxis.tickInterval
 // https://www.highcharts.com/demo/chart-update
-/* let chart = Highcharts.chart('container', {
+let chart = Highcharts.chart('container', {
   chart: {
     type: 'spline', // todo: change?
     animation: Highcharts.svg,
@@ -30,10 +30,7 @@ let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5,
       }
     }
   }
-}); */
-let totEnergySeries = new TimeSeries();
-let spdEnergySeries = new TimeSeries();
-let altEnergySeries = new TimeSeries();
+});
 
 
 let indicatorsNumRequests = 0;
