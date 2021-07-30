@@ -51,12 +51,21 @@ setInterval(function () {
     const timeout = setTimeout(() => {abortController.abort()}, timeoutInterval);
     
     fetch("http://localhost:8111/indicators", {signal})
-      .then(response => response.json())
+      .then(response => {
+		  return response.json();
+	  })
       .then(json => {
         data = json;
         // my code
         
         speedArray[inRequestNum] = data.speed;
+		
+		if (data.altitude_10k) {
+			altArray[inRequestNum] = data.altitude_10k;
+		}
+		else {
+			altArray[inRequestNum] = data.altitude_hour;
+		}
         
         calc_energy();
         display_power();
@@ -66,40 +75,6 @@ setInterval(function () {
         abortController.abort();
         console.log(error);
         indicatorsNumRequests--;
-      });
-  }
-}, requestInterval);
-
-let stateNumRequests = 0;
-let stateRequestNum = 0;
-let stateResettable = 0;
-setInterval(() => { stateResettable = 0}, timeoutInterval * 10);
-// get state
-setInterval(function () {
-  if (stateNumRequests < 3) {
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-    stateNumRequests++;
-    stateResettable++;
-    let stateRequestNumLocal = stateRequestNum++;
-    const timeout = setTimeout(() => {abortController.abort()}, timeoutInterval);
-    
-    fetch("http://localhost:8111/state", {signal})
-      .then(response => response.json())
-      .then(json => {
-       state = json;
-       
-       // my code
-       
-       altArray[stateRequestNumLocal] = state["H, m"];
-       calc_energy();
-       display_power();
-       stateNumRequests--;
-      })
-      .catch(error => {
-        abortController.abort();
-        console.log(error);
-        stateNumRequests--;
       });
   }
 }, requestInterval);
@@ -132,10 +107,7 @@ setInterval(function() {
 }, requestInterval)
 
 function calc_energy() {
-  if (stateResettable !== indicatorResettable) {
-    // only update when both speed and altitude are on same step
-    return;
-  }
+  
   let index = Math.min(speedArray.length, altArray.length) - 1;
   let energy_speed = (speedArray[index]**2/2);
   let energy_height = (g*altArray[index]);
@@ -160,12 +132,7 @@ function chart_energy() {
   ]);
 }
 
-function display_power() {
-  if (stateResettable !== indicatorResettable) {
-    // only update when both speed and altitude are on same step
-    return;
-  }
-  
+function display_power() {  
   let powerInst = "";
   let power2sec = "";
   let power10sec = "";
