@@ -17,10 +17,21 @@ let timeoutInterval = 1000; // when to abort a request due to timeout (ms)
 let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5, maximumSignificantDigits: 5 });
 
 // chart stuff
-// smoothiecharts.org
-let totEnergySeries = new TimeSeries();
-let spdEnergySeries = new TimeSeries();
-let altEnergySeries = new TimeSeries();
+// https://www.highcharts.com/demo/dynamic-update
+// https://api.highcharts.com/highcharts/yAxis.tickInterval
+// https://www.highcharts.com/demo/chart-update
+let chart = Highcharts.chart('container', {
+  chart: {
+    type: 'spline', // todo: change?
+    animation: Highcharts.svg,
+    marginRight: 10,
+    events: {
+      load: function() {
+      }
+    }
+  }
+});
+
 
 let indicatorsNumRequests = 0;
 let indicatorRequestNum = 0;
@@ -130,6 +141,8 @@ function calc_energy() {
   document.getElementById("energy_speed").innerText = numberFormat.format(energy_speed);
   document.getElementById("energy_height").innerText = numberFormat.format(energy_height);
   document.getElementById("energy").innerText = numberFormat.format(energy);
+  document.getElementById("alt").innerText = numberFormat.format(altArray[index]);
+  document.getElementById("speed").innerText = numberFormat.format(speedArray[index]);
   
   let time = new Date().getTime();
   
