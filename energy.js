@@ -16,21 +16,6 @@ let timeoutInterval = 1000; // when to abort a request due to timeout (ms)
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
 let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5, maximumSignificantDigits: 5 });
 
-// chart stuff
-// https://www.highcharts.com/demo/dynamic-update
-// https://api.highcharts.com/highcharts/yAxis.tickInterval
-// https://www.highcharts.com/demo/chart-update
-let chart = Highcharts.chart('container', {
-  chart: {
-    type: 'spline', // todo: change?
-    animation: Highcharts.svg,
-    marginRight: 10,
-    events: {
-      load: function() {
-      }
-    }
-  }
-});
 
 
 let indicatorsNumRequests = 0;
@@ -118,9 +103,9 @@ function calc_energy() {
   
   let time = new Date().getTime();
   
-  totEnergySeries.append(time, energy);
-  spdEnergySeries.append(time, energy_speed);
-  altEnergySeries.append(time, energy_height);
+  //totEnergySeries.append(time, energy);
+  //spdEnergySeries.append(time, energy_speed);
+  //altEnergySeries.append(time, energy_height);
 }
 
 function chart_energy() {
@@ -202,29 +187,53 @@ function onLoad() {
   // even if the screen resizes it'll still show the right time period
   
   // this includes padding and margin... is that a problem?
-  let initialWidth = document.getElementById("chart").offsetWidth;
+  // let initialWidth = document.getElementById("chart").offsetWidth;
   
-  let smoothie = new SmoothieChart({
-    labels: {
-      showIntermediateLabels: true
-    },
-    yMinFormatter: formatLabels,
-    yMaxFormatter: formatLabels,
-    yIntermediateFormatter: formatLabels,
-    interpolation:'linear',
+  // let smoothie = new SmoothieChart({
+    // labels: {
+      // showIntermediateLabels: true
+    // },
+    // yMinFormatter: formatLabels,
+    // yMaxFormatter: formatLabels,
+    // yIntermediateFormatter: formatLabels,
+    // interpolation:'linear',
     //yRangeFunction: calc_chart_y,
-    grid:{sharpLines:true,millisPerLine:10000,verticalSections:5},
-    responsive:true,
-    title: {
-        text: "E (J/kg)"
-      },
-    millisPerPixel: 60000/initialWidth // 60000 = 60 seconds
-   });
+    // grid:{sharpLines:true,millisPerLine:10000,verticalSections:5},
+    // responsive:true,
+    // title: {
+        // text: "E (J/kg)"
+      // },
+    // millisPerPixel: 60000/initialWidth // 60000 = 60 seconds
+   // });
   
-  smoothie.streamTo(document.getElementById("chart"), 250); // delay by 1 tick
-  smoothie.addTimeSeries(totEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(255,255,255)'});
+  // smoothie.streamTo(document.getElementById("chart"), 250); // delay by 1 tick
+  // smoothie.addTimeSeries(totEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(255,255,255)'});
   //smoothie.addTimeSeries(spdEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(234,146,23)' });
   //smoothie.addTimeSeries(altEnergySeries, { lineWidth: 1, strokeStyle: 'rgb(0,128,255)' });
+
+
+	// chart stuff
+	// https://www.highcharts.com/demo/dynamic-update
+	// https://api.highcharts.com/highcharts/yAxis.tickInterval
+	// https://www.highcharts.com/demo/chart-update
+	let chart = Highcharts.chart('container', {
+	  chart: {
+		type: 'spline', // todo: change?
+		animation: Highcharts.svg,
+		marginRight: 10,
+		events: {
+		  load: function() {
+			  var series = this.series[0];
+			  setInterval(function() {
+				  var x = (new Date()).getTime(),
+					  y = energyArray[energyArray.length - 1];
+				  series.addPoint([x,y], true, true);
+			  }, 250);
+		  }
+		}
+	  },
+	  series: [[]]
+	});
 }
 
 window.onload = onLoad;
