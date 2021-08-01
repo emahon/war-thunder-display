@@ -12,6 +12,8 @@ let g = 9.8; // constant for gravity, TODO: What does Gaijin actually use?
 let requestInterval = 250; // time between requests (ms)
 let timeoutInterval = 1000; // when to abort a request due to timeout (ms)
 
+let graphWidth = 240; // number of datapoints to show
+
 // make number formatting object for performance reasons
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
 let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5, maximumSignificantDigits: 5 });
@@ -231,14 +233,44 @@ function onLoad() {
 			  setInterval(function() {
 				  var x = (new Date()).getTime(),
 					  y = energyArray[energyArray.length - 1];
+				  
 				  series.addPoint([x,y], true, true);
-				  console.log(energyArray.length);
 				  //console.log(series);
 			  }, 250);
 		  }
 		}
 	  },
-	  series: [{x: 0, y: 0}]
+      time: {
+        useUTC: false
+      },
+	  series: [{name: 'data', data: (function() {
+		var data = [],
+		time = (new Date()).getTime(),
+		i;
+		
+		for (i = (1 - graphWidth); i <= 0; i += 1) {
+			data.push({
+				x: time + i * requestInterval,
+				y: null
+			});
+		}
+		
+		return data;
+	  }()) }],
+	  xAxis: {
+		type: 'datetime',
+		tickPixelInterval: 50
+	  },
+	  yAxis: {
+		title: {
+            text: 'Value'
+        },
+        plotLines: [{
+            value: 0,
+            width: 1,
+            color: '#808080'
+        }]
+	  }
 	});
 }
 
