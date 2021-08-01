@@ -240,9 +240,15 @@ function onLoad() {
 		  }
 		}
 	  },
+	  title: {
+	    enabled: false
+	  },
       time: {
         useUTC: false
       },
+	  legend: {
+		enabled: false  
+	  },
 	  series: [{name: 'data', data: (function() {
 		var data = [],
 		time = (new Date()).getTime(),
