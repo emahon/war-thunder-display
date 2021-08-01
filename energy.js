@@ -228,6 +228,7 @@ function onLoad() {
 				  var x = (new Date()).getTime(),
 					  y = energyArray[energyArray.length - 1];
 				  series.addPoint([x,y], true, true);
+				  console.log(series);
 			  }, 250);
 		  }
 		}
