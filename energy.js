@@ -228,12 +228,13 @@ function onLoad() {
 				  var x = (new Date()).getTime(),
 					  y = energyArray[energyArray.length - 1];
 				  series.addPoint([x,y], true, true);
-				  console.log(series);
+				  console.log(energyArray.length);
+				  //console.log(series);
 			  }, 250);
 		  }
 		}
 	  },
-	  series: [[]]
+	  series: [{x: 0, y: 0}]
 	});
 }
 
