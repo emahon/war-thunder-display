@@ -60,6 +60,10 @@ setInterval(function () {
         
         speedArray[inRequestNum] = data.speed;
 		
+		if (!data.speed && data.speed_01) {
+			speedArray[inRequestNum] = data.speed_01;
+		}
+		
 		if (data.altitude_10k) {
 			altArray[inRequestNum] = data.altitude_10k;
 		}
