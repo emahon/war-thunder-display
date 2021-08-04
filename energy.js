@@ -2,7 +2,8 @@
 let data = [];
 let state = [];
 
-let mapInfoArray = [];
+//let mapInfoArray = [];
+let validityArray = [];
 let speedArray = [];
 let altArray = [];
 let energyArray = [];
@@ -105,9 +106,10 @@ setInterval(function () {
       .then(response => response.json())
       .then(json => {
        state = json;
-
+	   
        // my code
 
+	   validityArray[stateRequestNumLocal] = state["valid"];
        altArray[stateRequestNumLocal] = state["H, m"];
 	   speedArray[stateRequestNumLocal] = state["TAS, km/h"]/3.6;
 	   
@@ -123,7 +125,7 @@ setInterval(function () {
   }
 }, requestInterval);
 
-let mapNumRequests = 0;
+/* let mapNumRequests = 0;
 let mapRequestNum = 0;
 let mapResettable = 0;
 setInterval(() => {mapResettable = 0}, timeoutInterval*10);
@@ -148,7 +150,7 @@ setInterval(function() {
         mapNumRequests--;
       });
   }
-}, requestInterval)
+}, requestInterval) */
 
 function calc_energy() {
   
@@ -183,26 +185,16 @@ function display_power() {
   let power60sec = "";
   let power600sec = "";
   
-  if (speedArray.length >= 1) {
-    powerInst = calc_power(.25);
-  }
+  powerInst = calc_power(.25);
   
-  if (speedArray.length >= 8) {
-    power2sec = calc_power(2);
-  }
+  power2sec = calc_power(2);
   
-  if (speedArray.length >= 40) {
-    power10sec = calc_power(10);
-  }
+  power10sec = calc_power(10);
+    
+  power60sec = calc_power(60);
   
-  if (speedArray.length >= 240) {
-    power60sec = calc_power(60);
-  }
-  
-  if (speedArray.length >= 2400) {
-    power600sec = calc_power(600);
-  }
-  
+  power600sec = calc_power(600);
+    
   document.getElementById("power-inst").innerText = numberFormat.format(powerInst);
   document.getElementById("power-2").innerText = numberFormat.format(power2sec);
   document.getElementById("power-10").innerText = numberFormat.format(power10sec);
@@ -218,6 +210,14 @@ function calc_power(time) {
   //  console.log(mapInfoArray[mapInfoArray.length - 1 - prevStep]);
   //  return null;
   //}
+  
+  if (energyArray.length < prevStep) {
+	  return null;
+  }
+  
+  if (validityArray.includes(false, (validityArray.length - 1 - prevStep))) {
+	  return null;
+  }
   
   let finalEnergy = energyArray[energyArray.length - 1];
   let initialEnergy = energyArray[energyArray.length - 1 - prevStep];
