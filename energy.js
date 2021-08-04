@@ -15,6 +15,8 @@ let timeoutInterval = 1000; // when to abort a request due to timeout (ms)
 // make number formatting object for performance reasons
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat
 let numberFormat = new Intl.NumberFormat("en-US", { minimumSignificantDigits: 5, maximumSignificantDigits: 5 });
+let potentialFormat = new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+let integerFormat = new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 // chart stuff
 // https://www.highcharts.com/demo/dynamic-update
@@ -156,10 +158,10 @@ function calc_energy() {
   let energy = energy_speed + energy_height;
   energyArray[index] = energy;
   document.getElementById("energy_speed").innerText = numberFormat.format(energy_speed);
-  document.getElementById("energy_height").innerText = numberFormat.format(energy_height);
+  document.getElementById("energy_height").innerText = potentialFormat.format(energy_height);
   document.getElementById("energy").innerText = numberFormat.format(energy);
-  document.getElementById("alt").innerText = numberFormat.format(altArray[index]);
-  document.getElementById("speed").innerText = numberFormat.format(speedArray[index]*3.6);
+  document.getElementById("alt").innerText = integerFormat.format(altArray[index]);
+  document.getElementById("speed").innerText = integerFormat.format(speedArray[index]*3.6);
   
   let time = new Date().getTime();
   
