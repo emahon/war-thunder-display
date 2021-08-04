@@ -36,7 +36,7 @@ let spdEnergySeries = new TimeSeries();
 let altEnergySeries = new TimeSeries();
 
 
-let indicatorsNumRequests = 0;
+/* let indicatorsNumRequests = 0;
 let indicatorRequestNum = 0;
 let indicatorResettable = 0;
 setInterval(() => { indicatorResettable = 0 }, timeoutInterval * 10);
@@ -57,6 +57,8 @@ setInterval(function () {
       .then(json => {
         data = json;
         // my code
+		
+		//console.log(data);
         
         speedArray[inRequestNum] = data.speed;
 		
@@ -79,6 +81,42 @@ setInterval(function () {
         abortController.abort();
         console.log(error);
         indicatorsNumRequests--;
+      });
+  }
+}, requestInterval); */
+
+let stateNumRequests = 0;
+let stateRequestNum = 0;
+let stateResettable = 0;
+setInterval(() => { stateResettable = 0}, timeoutInterval * 10);
+// get state
+setInterval(function () {
+  if (stateNumRequests < 3) {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    stateNumRequests++;
+    stateResettable++;
+    let stateRequestNumLocal = stateRequestNum++;
+    const timeout = setTimeout(() => {abortController.abort()}, timeoutInterval);
+
+    fetch("http://localhost:8111/state", {signal})
+      .then(response => response.json())
+      .then(json => {
+       state = json;
+
+       // my code
+
+       altArray[stateRequestNumLocal] = state["H, m"];
+	   speedArray[stateRequestNumLocal] = state["TAS, km/h"]/3.6;
+	   
+       calc_energy();
+       display_power();
+       stateNumRequests--;
+      })
+      .catch(error => {
+        abortController.abort();
+        console.log(error);
+        stateNumRequests--;
       });
   }
 }, requestInterval);
@@ -121,7 +159,7 @@ function calc_energy() {
   document.getElementById("energy_height").innerText = numberFormat.format(energy_height);
   document.getElementById("energy").innerText = numberFormat.format(energy);
   document.getElementById("alt").innerText = numberFormat.format(altArray[index]);
-  document.getElementById("speed").innerText = numberFormat.format(speedArray[index]);
+  document.getElementById("speed").innerText = numberFormat.format(speedArray[index]*3.6);
   
   let time = new Date().getTime();
   
