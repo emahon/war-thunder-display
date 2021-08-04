@@ -241,7 +241,7 @@ function onLoad() {
 		}
 	  },
 	  title: {
-	    enabled: false
+	    text: ''
 	  },
       time: {
         useUTC: false
@@ -265,11 +265,32 @@ function onLoad() {
 	  }()) }],
 	  xAxis: {
 		type: 'datetime',
-		tickPixelInterval: 50
+		tickPositioner: function() {
+			let positions = [];
+			
+			let delta = graphWidth * requestInterval;
+			
+			positions.push(Math.floor(this.dataMin));
+			positions.push(Math.floor(this.dataMin + delta/4));
+			positions.push(Math.floor(this.dataMin + delta/2));
+			positions.push(Math.floor(this.dataMin + 3*delta/4));
+			positions.push(Math.floor(this.dataMax));
+			
+			console.log(positions);
+			
+			return positions;
+		},
+		labels: {
+			enabled: true,
+			formatter: function () {
+				let time = (new Date()).getTime();
+				return Math.floor((this.value - time)/1000);
+			}
+		}
 	  },
 	  yAxis: {
 		title: {
-            text: 'Value'
+            text: 'Energy (J/kg)'
         },
         plotLines: [{
             value: 0,
